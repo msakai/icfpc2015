@@ -1,0 +1,1 @@
+Just (Input {id = 15, units = [Unit {members = [Cell {x = 0, y = 0},Cell {x = 2, y = 0},Cell {x = 0, y = 2},Cell {x = 2, y = 2}], pivot = Cell {x = 1, y = 1}}], width = 15, height = 20, filled = [], sourceLength = 100, sourceSeeds = [0]})
