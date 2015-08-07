@@ -1,4 +1,6 @@
-module Util where
+module Util
+       ( readProblem
+       ) where
 
 import Control.Monad (forM_)
 import Data.Aeson hiding (decode')
