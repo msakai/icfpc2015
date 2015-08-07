@@ -1,6 +1,8 @@
 {-# LANGUAGE
     OverloadedStrings
   , DeriveGeneric
+  , TypeSynonymInstances
+  , FlexibleInstances
  #-}
 module Game where
 
@@ -32,5 +34,9 @@ data OutputItem = OutputItem { problemId :: Number
                              }
                 deriving (Show, Eq, Generic)
 
+type Output = [OutputItem]
+
 instance FromJSON OutputItem
 instance ToJSON OutputItem
+instance FromJSON Output
+instance ToJSON Output
