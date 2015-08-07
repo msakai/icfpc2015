@@ -8,6 +8,7 @@ module Game where
 
 import Data.Aeson
 import qualified Data.Set as Set
+import Data.Ix (inRange)
 import GHC.Generics
 
 import Board
@@ -45,3 +46,6 @@ instance ToJSON Output
 
 initBoard :: Input -> Board
 initBoard i = Board { cols = width i, rows = height i, fulls = Set.fromList (filled i) }
+
+initSource :: Input -> [Unit]
+initSource =  undefined
