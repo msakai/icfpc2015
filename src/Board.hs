@@ -1,10 +1,8 @@
 module Board where
 
-import Data.Map (Map(..))
+import Data.Set (Set(..))
 
 import Cell
 import Types
 
-data Board = Board { cols :: Number, rows :: Number, fulls :: Map Cell }
-
-
+data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell }
