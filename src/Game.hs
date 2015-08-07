@@ -1,4 +1,11 @@
+{-# LANGUAGE
+    OverloadedStrings
+  , DeriveGeneric
+ #-}
 module Game where
+
+import Data.Aeson
+import GHC.Generics
 
 import Types
 import Cell
@@ -13,13 +20,17 @@ data Input = Input { id :: Number
                    , sourceLength :: Number
                    , sourceSeeds :: [Number]
                    }
-             deriving (Show, Eq)
+             deriving (Show, Eq, Generic)
 
+instance FromJSON Input
+instance ToJSON Input
 
 data OutputItem = OutputItem { problemId :: Number
                              , seed :: Number
                              , tag :: String
                              , solution :: Commands
                              }
-                deriving (Show, Eq)
+                deriving (Show, Eq, Generic)
 
+instance FromJSON OutputItem
+instance ToJSON OutputItem
