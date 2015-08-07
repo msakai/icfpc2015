@@ -7,6 +7,7 @@
 module Game where
 
 import Data.Aeson
+import qualified Data.Map as Map
 import GHC.Generics
 
 import Types
