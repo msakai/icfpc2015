@@ -1,8 +1,9 @@
 module Board where
 
 import Data.Ix (inRange)
+import Data.List (foldl')
 import Data.Set (Set(..))
-import qualified Data.Set as Set (notMember,insert)
+import qualified Data.Set as Set (notMember,insert,size,filter)
 
 import Cell
 import Unit
@@ -21,3 +22,12 @@ valid b u
 
 lockUnit :: Board -> Unit -> Board
 lockUnit b u = b { fulls = foldr Set.insert (fulls b) (members u) }
+
+findFullRows :: Board -> [Number]
+findFullRows b = filter fullRow [h-1,h-2 .. 0]
+  where
+    w = cols b
+    h = rows b
+    fs = fulls b
+    fullRow r = Set.size (Set.filter ((r==) . y) fs) == w
+    
