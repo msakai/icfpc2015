@@ -13,6 +13,7 @@ import Data.List
 import Data.Aeson
 import GHC.Generics
 
+import Command (CDir (..))
 import Types
 
 data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Generic)
@@ -50,6 +51,42 @@ moveCell dir c@Cell{ x, y } =
     FaceSW -> Cell{ x = if even y then x - 1 else x, y = y + 1 }
     FaceSE -> Cell{ x = if even y then x else x + 1, y = y + 1 }
 
+turnFaceDir :: CDir -> FaceDir -> FaceDir
+turnFaceDir CW  = f
+  where
+    f FaceNW = FaceNE
+    f FaceNE = FaceE
+    f FaceE  = FaceSE
+    f FaceSE = FaceSW
+    f FaceSW = FaceW
+    f FaceW  = FaceNW
+turnFaceDir CCW = f
+  where
+    f FaceNE = FaceNW
+    f FaceE  = FaceNE
+    f FaceSE = FaceE
+    f FaceSW = FaceSE
+    f FaceW  = FaceSW
+    f FaceNW = FaceW
+
+turnCell :: CDir -> Cell -> Cell -> Cell
+turnCell dir pivot@Cell{ x = px, y = py } = fromPath . map (turnFaceDir dir) . toPath
+  where
+    toPath :: Cell -> [FaceDir]
+    toPath Cell{ x, y } = path1 ++ path2 ++ path3
+      where
+        path1 = if x <= px then replicate (px - x) FaceW else replicate (x - px) FaceE
+        path2 = if y <= py
+                then concat $ replicate ((py - y) `div` 2) [FaceNE, FaceNW]
+                else concat $ replicate ((y - py) `div` 2) [FaceSE, FaceSW]
+        path3
+          | even py == even y = []
+          | even py = if y <= py then [FaceNE] else [FaceSE] -- even py && odd y
+          | otherwise = if y <= py then [FaceNW] else [FaceSW] -- odd py && even y
+
+    fromPath :: [FaceDir] -> Cell
+    fromPath = foldl' (flip moveCell) pivot
+
 testCellDir = and
   [ moveCell FaceSE (Cell 1 1) == Cell 2 2
   , moveCell FaceSW (Cell 1 1) == Cell 1 2
@@ -60,4 +97,24 @@ testCellDir = and
   , moveCell FaceSW (Cell 1 2) == Cell 0 3
   , moveCell FaceNE (Cell 1 2) == Cell 1 1
   , moveCell FaceNW (Cell 1 2) == Cell 0 1
+  ]
+
+test_turnCell = and
+  [ turnCell CW (Cell 2 2) (Cell 2 2) == Cell 2 2
+  , turnCell CCW (Cell 2 2) (Cell 2 2) == Cell 2 2
+
+  , turnCell CW (Cell 2 3) (Cell 2 3) == Cell 2 3
+  , turnCell CCW (Cell 2 3) (Cell 2 3) == Cell 2 3
+
+  , turnCell CW (Cell 2 2) (Cell 3 5) == Cell 0 5
+  , turnCell CCW (Cell 2 2) (Cell 0 5) == Cell 3 5
+
+  , turnCell CW (Cell 2 2) (Cell 4 4) == Cell 1 5
+  , turnCell CCW (Cell 2 2) (Cell 1 5) == Cell 4 4
+
+  , turnCell CW (Cell 2 3) (Cell 3 5) == Cell 1 5
+  , turnCell CCW (Cell 2 3) (Cell 1 5) == Cell 3 5
+
+  , turnCell CW (Cell 2 3) (Cell 4 4) == Cell 2 5
+  , turnCell CCW (Cell 2 3) (Cell 2 5) == Cell 4 4
   ]
