@@ -3,7 +3,8 @@ module Board where
 import Data.Ix (inRange)
 import Data.List (foldl')
 import Data.Set (Set(..))
-import qualified Data.Set as Set (notMember,insert,size,filter)
+import qualified Data.Set as Set
+  (notMember,insert,size,filter,split,union,mapMonotonic)
 
 import Cell
 import Unit
@@ -31,3 +32,11 @@ findFullRows b = filter fullRow [h-1,h-2 .. 0]
     fs = fulls b
     fullRow r = Set.size (Set.filter ((r==) . y) fs) == w
     
+clearFullRows :: Board -> Board
+clearFullRows b = foldl' clearRow b (findFullRows b)
+
+clearRow :: Board -> Number -> Board
+clearRow b r = case Set.split (Cell { x = 0, y = r }) fs of
+  (ps,qs) -> b { fulls = ps `Set.union` Set.mapMonotonic (\ c -> c { y = y c - 1 }) qs }
+  where 
+    fs = Set.filter ((r /=) . y) (fulls b)
