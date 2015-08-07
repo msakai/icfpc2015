@@ -6,6 +6,7 @@
 module Cell where
 
 import Control.Arrow ((&&&))
+import Data.Ord (comparing)
 import Data.Ix
 import Data.List
 
@@ -14,21 +15,27 @@ import GHC.Generics
 
 import Types
 
-data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Ord, Generic)
+data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Generic)
 
 instance FromJSON Cell
 instance ToJSON Cell
 
+instance Ord Cell where
+  compare = comparing revcoord 
+
 instance Ix Cell where
-  range (a,b)     = map cell (range (coord a, coord b))
-  index (a,b) c   = index (coord a, coord b) (coord c)
-  inRange (a,b) c = inRange (coord a, coord b) (coord c)
+  range (a,b)     = map cell (range (revcoord a, revcoord b))
+  index (a,b) c   = index (revcoord a, revcoord b) (revcoord c)
+  inRange (a,b) c = inRange (revcoord a, revcoord b) (revcoord c)
 
 coord :: Cell -> (Number,Number)
 coord = x &&& y
 
+revcoord :: Cell -> (Number,Number)
+revcoord = y &&& x
+
 cell :: (Number, Number) -> Cell
-cell (x,y) = Cell {x = x, y = y}
+cell (y,x) = Cell {x = x, y = y}
 
 eastCell :: Cell -> Cell
 eastCell c@Cell{ x } = c{ x = x + 1 }
