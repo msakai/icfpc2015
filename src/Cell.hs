@@ -9,3 +9,6 @@ data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq)
 
 instance FromJSON Cell where
   parseJSON (Object v) = Cell <$> v .: "x" <*> v .: "y"
+
+instance ToJSON Cell where
+  toJSON (Cell x y) = object ["x" .= x, "y" .= y]
