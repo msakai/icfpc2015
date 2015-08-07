@@ -1,7 +1,24 @@
+{-# LANGUAGE
+    OverloadedStrings
+  , DeriveGeneric
+ #-}
 module Command where
 
-data MDir = E | W | SE | SW deriving (Show, Eq)
-data CDir = CW | CCW deriving (Show, Eq)
+import Data.Aeson
+import GHC.Generics
 
-data Command = Move MDir | Turn CDir deriving (Show, Eq)
+data MDir = E | W | SE | SW deriving (Show, Eq, Generic)
+data CDir = CW | CCW deriving (Show, Eq, Generic)
+
+instance FromJSON MDir
+instance ToJSON MDir
+instance FromJSON CDir
+instance ToJSON CDir
+
+data Command = Move MDir | Turn CDir deriving (Show, Eq, Generic)
 type Commands = [Command]
+
+instance FromJSON Command
+instance ToJSON Command
+instance FromJSON Commands
+instance ToJSON Commands

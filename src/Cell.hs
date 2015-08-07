@@ -1,14 +1,15 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE
+    OverloadedStrings
+  , DeriveGeneric
+ #-}
 module Cell where
 
-import Control.Applicative ((<$>), (<*>))
 import Data.Aeson
+import GHC.Generics
+
 import Types
 
-data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq)
+data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Generic)
 
-instance FromJSON Cell where
-  parseJSON (Object v) = Cell <$> v .: "x" <*> v .: "y"
-
-instance ToJSON Cell where
-  toJSON (Cell x y) = object ["x" .= x, "y" .= y]
+instance FromJSON Cell
+instance ToJSON Cell
