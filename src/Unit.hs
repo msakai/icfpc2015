@@ -22,23 +22,15 @@ move dir Unit{ members, pivot } = Unit{ members = map f members, pivot = f pivot
   where
     f =
       case dir of
-        C.E  -> eastCell
-        C.W  -> westCell
-        C.SE -> southEastCell
-        C.SW -> southWestCell
+        C.E  -> moveCell FaceE
+        C.W  -> moveCell FaceW
+        C.SE -> moveCell FaceSE 
+        C.SW -> moveCell FaceSW
 
 turn :: C.CDir -> Unit -> Unit
 turn dir u@Unit{ members, pivot } = u{ members = map f members }
   where
     f = turnCell dir pivot
-
-data FaceDir
-  = FaceNW
-  | FaceNE
-  | FaceE
-  | FaceSE
-  | FaceSW
-  | FaceW
 
 turnFaceDir :: C.CDir -> FaceDir -> FaceDir
 turnFaceDir C.CW  = f
@@ -74,14 +66,7 @@ turnCell dir pivot@Cell{ x = px, y = py } = fromPath . map (turnFaceDir dir) . t
           | otherwise = if y <= py then [FaceNW] else [FaceSW] -- odd py && even y
 
     fromPath :: [FaceDir] -> Cell
-    fromPath = foldl' (flip f) pivot
-      where
-        f FaceNW = northWestCell
-        f FaceNE = northEastCell
-        f FaceE  = eastCell
-        f FaceSE = southEastCell
-        f FaceSW = southWestCell
-        f FaceW  = westCell
+    fromPath = foldl' (flip moveCell) pivot
 
 test_turnCell = and
   [ turnCell C.CW (Cell 2 2) (Cell 2 2) == Cell 2 2
