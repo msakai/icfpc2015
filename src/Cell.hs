@@ -5,6 +5,7 @@
  #-}
 module Cell where
 
+import Control.Arrow ((&&&))
 import Data.Aeson
 import GHC.Generics
 
@@ -14,6 +15,9 @@ data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Ord, Generic)
 
 instance FromJSON Cell
 instance ToJSON Cell
+
+coord :: Cell -> (Number,Number)
+coord = x &&& y
 
 eastCell :: Cell -> Cell
 eastCell c@Cell{ x } = c{ x = x + 1 }
