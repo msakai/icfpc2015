@@ -24,7 +24,7 @@ instance Ord Cell where
   compare = comparing revcoord 
 
 instance Ix Cell where
-  range (a,b)     = map cell (range (revcoord a, revcoord b))
+  range (a,b)     = map revcell (range (revcoord a, revcoord b))
   index (a,b) c   = index (revcoord a, revcoord b) (revcoord c)
   inRange (a,b) c = inRange (revcoord a, revcoord b) (revcoord c)
 
@@ -35,7 +35,10 @@ revcoord :: Cell -> (Number,Number)
 revcoord = y &&& x
 
 cell :: (Number, Number) -> Cell
-cell (y,x) = Cell {x = x, y = y}
+cell (x,y) = Cell {x = x, y = y}
+
+revcell :: (Number, Number) -> Cell
+revcell (y,x) = Cell {x = x, y = y}
 
 eastCell :: Cell -> Cell
 eastCell c@Cell{ x } = c{ x = x + 1 }
