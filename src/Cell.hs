@@ -6,6 +6,9 @@
 module Cell where
 
 import Control.Arrow ((&&&))
+import Data.Ix
+import Data.List
+
 import Data.Aeson
 import GHC.Generics
 
@@ -16,8 +19,16 @@ data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Ord, Generic)
 instance FromJSON Cell
 instance ToJSON Cell
 
+instance Ix Cell where
+  range (a,b)     = map cell (range (coord a, coord b))
+  index (a,b) c   = index (coord a, coord b) (coord c)
+  inRange (a,b) c = inRange (coord a, coord b) (coord c)
+
 coord :: Cell -> (Number,Number)
 coord = x &&& y
+
+cell :: (Number, Number) -> Cell
+cell (x,y) = Cell {x = x, y = y}
 
 eastCell :: Cell -> Cell
 eastCell c@Cell{ x } = c{ x = x + 1 }
