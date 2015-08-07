@@ -1,6 +1,8 @@
 {-# LANGUAGE
     OverloadedStrings
   , DeriveGeneric
+  , TypeSynonymInstances
+  , FlexibleInstances
  #-}
 module Command where
 
