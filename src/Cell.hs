@@ -40,32 +40,24 @@ cell (x,y) = Cell {x = x, y = y}
 revcell :: (Number, Number) -> Cell
 revcell (y,x) = Cell {x = x, y = y}
 
-eastCell :: Cell -> Cell
-eastCell c@Cell{ x } = c{ x = x + 1 }
-
-westCell :: Cell -> Cell
-westCell c@Cell{ x } = c{ x = x - 1 }
-
-southEastCell :: Cell -> Cell
-southEastCell c@Cell{ x, y } = Cell{ x = if even y then x else x + 1, y = y + 1 }
-
-southWestCell :: Cell -> Cell
-southWestCell c@Cell{ x, y } = Cell{ x = if even y then x - 1 else x, y = y + 1 }
-
-northEastCell :: Cell -> Cell
-northEastCell c@Cell{ x, y } = Cell{ x = if even y then x else x + 1, y = y - 1 }
-
-northWestCell :: Cell -> Cell
-northWestCell c@Cell{ x, y } = Cell{ x = if even y then x - 1 else x, y = y - 1 }
+moveCell :: FaceDir -> Cell -> Cell
+moveCell dir c@Cell{ x, y } =
+  case dir of
+    FaceW  -> c{ x = x - 1 }
+    FaceE  -> c{ x = x + 1 }
+    FaceNW -> Cell{ x = if even y then x - 1 else x, y = y - 1 }
+    FaceNE -> Cell{ x = if even y then x else x + 1, y = y - 1 }
+    FaceSW -> Cell{ x = if even y then x - 1 else x, y = y + 1 }
+    FaceSE -> Cell{ x = if even y then x else x + 1, y = y + 1 }
 
 testCellDir = and
-  [ southEastCell (Cell 1 1) == Cell 2 2
-  , southWestCell (Cell 1 1) == Cell 1 2
-  , northEastCell (Cell 1 1) == Cell 2 0
-  , northWestCell (Cell 1 1) == Cell 1 0
+  [ moveCell FaceSE (Cell 1 1) == Cell 2 2
+  , moveCell FaceSW (Cell 1 1) == Cell 1 2
+  , moveCell FaceNE (Cell 1 1) == Cell 2 0
+  , moveCell FaceNW (Cell 1 1) == Cell 1 0
 
-  , southEastCell (Cell 1 2) == Cell 1 3
-  , southWestCell (Cell 1 2) == Cell 0 3
-  , northEastCell (Cell 1 2) == Cell 1 1
-  , northWestCell (Cell 1 2) == Cell 0 1
+  , moveCell FaceSE (Cell 1 2) == Cell 1 3
+  , moveCell FaceSW (Cell 1 2) == Cell 0 3
+  , moveCell FaceNE (Cell 1 2) == Cell 1 1
+  , moveCell FaceNW (Cell 1 2) == Cell 0 1
   ]
