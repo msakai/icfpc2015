@@ -39,8 +39,11 @@ play = do
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
-      ; if gsOver gm then return () else loop
+      ; if gsOver gm then dumpOutput gm else loop
       }
+
+dumpOutput :: GameState -> Game ()
+dumpOutput gm = return ()
 
 hGetCommand :: Handle -> IO Command
 hGetCommand h =  maybe (hGetCommand h) return . keyToCommand =<< hGetChar h
