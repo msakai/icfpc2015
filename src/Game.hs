@@ -107,10 +107,12 @@ initGameStates tg input = map (initGameState (defaultGameState tg input)) (initS
 
 initGameState :: GameState -> (Number,[Unit]) -> GameState
 initGameState d (sd,src) = d { gsSeed    = sd
-                             , gsCurUnit = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
-                             , gsSource   = tail src
+                             , gsCurUnit = iu
+                             , gsSource  = tail src
+                             , gsTrace   = Set.singleton iu
                              }
-
+  where
+    iu = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
 gameStep :: Command -> GameState -> GameState
 gameStep cmd old = old { gsBoard     = newboard
                        , gsCurUnit   = if lockedp then fleshcur else newcur
@@ -118,7 +120,8 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsLocked    = lockedp
                        , gsOver      = Set.member newcur oldtrace
                        , gsCommands  = cmd : gsCommands old
-                       , gsTrace     = if lockedp then Set.empty else Set.insert newcur oldtrace
+                       , gsTrace     = if lockedp then Set.singleton fleshcur
+                                       else Set.insert newcur oldtrace
                        }
   where
     fleshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
