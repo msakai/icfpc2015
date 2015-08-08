@@ -86,35 +86,3 @@ turnCell dir pivot@Cell{ x = px, y = py } = fromPath . map (turnFaceDir dir) . t
 
     fromPath :: [FaceDir] -> Cell
     fromPath = foldl' (flip moveCell) pivot
-
-testCellDir = and
-  [ moveCell FaceSE (Cell 1 1) == Cell 2 2
-  , moveCell FaceSW (Cell 1 1) == Cell 1 2
-  , moveCell FaceNE (Cell 1 1) == Cell 2 0
-  , moveCell FaceNW (Cell 1 1) == Cell 1 0
-
-  , moveCell FaceSE (Cell 1 2) == Cell 1 3
-  , moveCell FaceSW (Cell 1 2) == Cell 0 3
-  , moveCell FaceNE (Cell 1 2) == Cell 1 1
-  , moveCell FaceNW (Cell 1 2) == Cell 0 1
-  ]
-
-test_turnCell = and
-  [ turnCell CW (Cell 2 2) (Cell 2 2) == Cell 2 2
-  , turnCell CCW (Cell 2 2) (Cell 2 2) == Cell 2 2
-
-  , turnCell CW (Cell 2 3) (Cell 2 3) == Cell 2 3
-  , turnCell CCW (Cell 2 3) (Cell 2 3) == Cell 2 3
-
-  , turnCell CW (Cell 2 2) (Cell 3 5) == Cell 0 5
-  , turnCell CCW (Cell 2 2) (Cell 0 5) == Cell 3 5
-
-  , turnCell CW (Cell 2 2) (Cell 4 4) == Cell 1 5
-  , turnCell CCW (Cell 2 2) (Cell 1 5) == Cell 4 4
-
-  , turnCell CW (Cell 2 3) (Cell 3 5) == Cell 1 5
-  , turnCell CCW (Cell 2 3) (Cell 1 5) == Cell 3 5
-
-  , turnCell CW (Cell 2 3) (Cell 4 4) == Cell 2 5
-  , turnCell CCW (Cell 2 3) (Cell 2 5) == Cell 4 4
-  ]
