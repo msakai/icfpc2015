@@ -4,9 +4,10 @@ import System.Random
 
 import Types
 import Command
+import Game (GameState)
 
-player :: IO [Command]
-player = do
+player :: GameState -> IO Commands
+player _ = do
   g <- newStdGen
   return $ map convert (randoms g)
   where
