@@ -1,6 +1,7 @@
 module Play where
 
 import Control.Arrow ((&&&))
+import Control.Concurrent.Thread.Delay (delay)
 import Control.Monad.IO.Class
 import Control.Monad.Trans.State
 import Data.Maybe (isJust, isNothing, maybe, fromJust)
@@ -28,21 +29,21 @@ testPlay n player = do
   runStateT player (head gms)
   return ()
 
-play' :: (GameState -> IO Commands) -> Game ()
-play' ani = do
+play' :: (GameState -> IO Commands) -> Integer -> Game ()
+play' ani wait = do
   { gm <- get
   ; liftIO $ gameDisplay gm
-  ; loop gm
+  ; ccs <- liftIO (ani gm)
+  ; loop ccs
   }
   where
     quit = return ()
-    loop gm = do
-      { (c:cs) <- liftIO (ani gm)
-      ; modify (gameStep c)
+    loop (c:cs) = do
+      { modify (gameStep c)
       ; gm <- get
-      ; liftIO (gameDisplay gm)
+      ; liftIO (gameDisplay gm >> delay wait)
       ; case gsStatus gm of
-          Running -> loop gm
+          Running -> loop cs
           _       -> quit
       }
 
