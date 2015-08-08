@@ -52,34 +52,34 @@ play = do
   { liftIO (hSetBuffering stdin NoBuffering)
   ; liftIO (hSetBuffering stdout NoBuffering)
   ; liftIO (hSetEcho stdin False)
-  ; gm <- get
-  ; liftIO (gameDisplay gm >> hFlush stdout)
-  ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
-  ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
   ; loop
   }
   where
     dump = do
       { gm <- get
-      ; liftIO $ putStrLn $ show $ reverse $ gsCommands gm
+      ; let cmds = reverse $ gsCommands gm
+      ; liftIO $ print $ cmds
+      ; liftIO $ print $ head $ commandsToString cmds
       }
-    quit = liftIO $ putStrLn "QUIT"
-    opMeta Quit = dump >> quit
+    quit = do
+      { liftIO $ putStrLn "QUIT"
+      ; dump
+      }
+    opMeta Quit = quit
     opMeta Dump = dump >> loop
     opMeta Nop  = loop
-    opCommand cmd = do
-      { modify (gameStep cmd)
-      ; gm <- get
+    opCommand cmd = modify (gameStep cmd) >> loop
+    loop = do
+      { gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
-      ; case gsStatus gm of 
-          Running -> loop
+      ; case gsStatus gm of
+          Running -> do
+           { cmd <- liftIO (hGetCommand stdin)
+           ; either opMeta opCommand cmd
+           }
           _       -> quit
-      }
-    loop = do
-      { cmd <- liftIO (hGetCommand stdin)
-      ; either opMeta opCommand cmd
       }
 
 hGetCommand :: Handle -> IO (Either Meta Command)
