@@ -16,7 +16,7 @@ import Types
 dispProblemStart :: Int -> IO ()
 dispProblemStart n = do
   Just inp <- readProblem ("problems/problem_" ++ show n ++ ".json")
-  printBox $ dispBoard (initBoard inp) [ spawn (wh inp) (head (head (initSources inp))) ]
+  printBox $ dispBoard (initBoard inp) [ spawn (wh inp) (head (snd (head (initSources inp)))) ]
     where
       wh = width &&& height
 

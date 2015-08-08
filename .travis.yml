@@ -1,0 +1,56 @@
+# NB: don't set `language: haskell` here
+
+# The following enables several GHC versions to be tested; often it's enough to test only against the last release in a major GHC version. Feel free to omit lines listings versions you don't need/want testing for.
+env:
+ - CABALVER=1.18 GHCVER=7.6.3
+ - CABALVER=1.18 GHCVER=7.8.3 COVERAGE=1
+ - CABALVER=1.22 GHCVER=7.10.2
+# - CABALVER=head GHCVER=head   # see section about GHC HEAD snapshots
+
+# Note: the distinction between `before_install` and `install` is not important.
+before_install:
+ - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
+ - travis_retry sudo apt-get update
+ - travis_retry sudo apt-get install cabal-install-$CABALVER ghc-$GHCVER # see note about happy/alex
+ - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:~/.cabal/bin:$PATH
+ - |
+   if [ $GHCVER = "head" ] || [ ${GHCVER%.*} = "7.8" ] || [ ${GHCVER%.*} = "7.10" ]; then
+     travis_retry sudo apt-get install happy-1.19.4 alex-3.1.3
+     export PATH=/opt/alex/3.1.3/bin:/opt/happy/1.19.4/bin:$PATH
+   else
+     travis_retry sudo apt-get install happy alex
+   fi
+
+install:
+ - cabal --version
+ - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+ - travis_retry cabal update
+ - cabal install --only-dependencies --enable-tests --enable-benchmarks
+ - "[ -n \"$COVERAGE\" ] && cabal install hpc-coveralls --avoid-reinstalls || true"
+
+# Here starts the actual work to be performed for the package under test; any command which exits with a non-zero exit code causes the build to fail.
+script:
+ - if [ -f configure.ac ]; then autoreconf -i; fi
+ - cabal configure --enable-tests --enable-benchmarks -v2 $([ "$COVERAGE" = "1" ] && echo "--enable-library-coverage") # -v2 provides useful information for debugging
+ - cabal build   # this builds all libraries and executables (including tests/benchmarks)
+ - cabal test
+ - cabal check
+ - cabal sdist   # tests that a source-distribution can be generated
+
+# The following scriptlet checks that the resulting source distribution can be built & installed
+ - export SRC_TGZ=$(cabal info . | awk '{print $2 ".tar.gz";exit}') ;
+   cd dist/;
+   if [ -f "$SRC_TGZ" ]; then
+      cabal install --force-reinstalls "$SRC_TGZ";
+   else
+      echo "expected '$SRC_TGZ' not found";
+      exit 1;
+   fi ;
+   cd ..
+
+after_script:
+ - "[ -n \"$COVERAGE\" ] && hpc-coveralls test --exclude-dir=test || true"
+
+notifications:
+  slack:
+    secure: q41AkjiEERaYmpcPr/uZxi0r5AmheE7pJxrxFBFfogias80fwHOjxlUUXy56Rh2cqRn2e5waLBB2TMDESqDcmaJpbMaILDH44O9G7gd9HKAALz+X57H7ao+JIq8KHu8x9DNq2aiRFjCOmzw4yT/MaZ/No6pEL57sGnSbl4AT+V1BKQ4dVkitdWb5Wbd/ol7VLPiUg+VIpr2uNQNVm1oE0VFcEhfqKI/bjl1NLJFovuLf76OZlIIy1dcCHKGYdhdX0cdDyagHBw5V38Z+RxcTEa7nYdGhhytv1/zqLAuMliF9qCtuSNgjtSxngXH34HV6fVnhNh3RsLafDr7vGcSUpxBT7jiFM2sOOK7To+xbhnFvcanbeUAq6ngQ57nIGM/us0k6AXMPdrWSZtJVMZlaNx4Uwiy/E8FzS6rrx0VkDXb9gKgRB1x4DXUTzcyJsbGOq6u7Fi6c0y8IjZIdEr3Peh9xsnITJlqQHm6lAHHFrA9KiTZjzUbWO8yzesNF2SVv6LTEtkkivNVdmHol1qLkbUGx5/oItsuDXpNcqDvlA30jx+sfx2TxpEe074MdOtDH4VYR06Kza+/t09a3PDJnx6uoONNbtyWylt+wPeuqWJ6Sk+z0JDa+HyVvk061eCx1JVSFpD9MI8C3ZT3iB37rjbaFNAZkO/4PkqkF4bHHx18=

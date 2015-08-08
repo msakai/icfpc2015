@@ -17,6 +17,32 @@ import qualified PRNG
 import qualified Unit
 import qualified Util
 
+instance Arbitrary FaceDir where
+  arbitrary = arbitraryBoundedEnum
+
+instance Arbitrary MDir where
+  arbitrary = arbitraryBoundedEnum
+
+instance Arbitrary CDir where
+  arbitrary = arbitraryBoundedEnum
+
+arbitraryCell :: Gen Cell.Cell
+arbitraryCell = do
+  x <- choose (- 1024, 1024)
+  y <- choose (- 1024, 1024)
+  return $ Cell.Cell x y
+
+prop_moveCell_inverse =
+  forAll arbitraryCell $ \c ->
+    forAll arbitrary $ \dir ->
+      Cell.moveCell (oppositeFaceDir dir) (Cell.moveCell dir c) == c
+
+prop_moveCell_commute =
+  forAll arbitraryCell $ \c ->
+    forAll arbitrary $ \dir1 ->
+      forAll arbitrary $ \dir2 ->
+        Cell.moveCell dir2 (Cell.moveCell dir1 c) == Cell.moveCell dir1 (Cell.moveCell dir2 c)
+
 case_moveCell_1 = Cell.moveCell FaceSE (Cell.Cell 1 1) @?= Cell.Cell 2 2
 case_moveCell_2 = Cell.moveCell FaceSW (Cell.Cell 1 1) @?= Cell.Cell 1 2
 case_moveCell_3 = Cell.moveCell FaceNE (Cell.Cell 1 1) @?= Cell.Cell 2 0
@@ -25,6 +51,28 @@ case_moveCell_5 = Cell.moveCell FaceSE (Cell.Cell 1 2) @?= Cell.Cell 1 3
 case_moveCell_6 = Cell.moveCell FaceSW (Cell.Cell 1 2) @?= Cell.Cell 0 3
 case_moveCell_7 = Cell.moveCell FaceNE (Cell.Cell 1 2) @?= Cell.Cell 1 1
 case_moveCell_8 = Cell.moveCell FaceNW (Cell.Cell 1 2) @?= Cell.Cell 0 1
+
+prop_turnCell_inverse_1 =
+  forAll arbitraryCell $ \c ->
+    forAll arbitraryCell $ \p ->
+        Cell.turnCell CCW p (Cell.turnCell CW p c) == c
+
+prop_turnCell_inverse_2 =
+  forAll arbitraryCell $ \c ->
+    forAll arbitraryCell $ \p ->
+        Cell.turnCell CCW p (Cell.turnCell CW p c) == c
+
+prop_turnCell_commute =
+  forAll arbitraryCell $ \c ->
+    forAll arbitraryCell $ \p ->
+      forAll arbitrary $ \cdir1 ->
+        forAll arbitrary $ \cdir2 ->
+          Cell.turnCell cdir1 p (Cell.turnCell cdir2 p c) == Cell.turnCell cdir2 p (Cell.turnCell cdir1 p c)
+
+prop_turnCell_pivot_fixed =
+  forAll arbitraryCell $ \c ->
+    forAll arbitrary $ \cdir ->
+      Cell.turnCell cdir c c == c
 
 case_turnCell_1 = Cell.turnCell CW (Cell.Cell 2 2) (Cell.Cell 2 2) @?= Cell.Cell 2 2
 case_turnCell_2 = Cell.turnCell CCW (Cell.Cell 2 2) (Cell.Cell 2 2) @?= Cell.Cell 2 2
