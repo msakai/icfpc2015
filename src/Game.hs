@@ -118,7 +118,7 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsLocked    = lockedp
                        , gsOver      = Set.member newcur oldtrace
                        , gsCommands  = cmd : gsCommands old
-                       , gsTrace     = if lockedp then oldtrace else Set.insert newcur oldtrace
+                       , gsTrace     = if lockedp then Set.empty else Set.insert newcur oldtrace
                        }
   where
     fleshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
