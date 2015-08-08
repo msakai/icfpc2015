@@ -25,7 +25,7 @@ lockUnit :: Board -> Unit -> Board
 lockUnit b u = b { fulls = foldr Set.insert (fulls b) (members u) }
 
 findFullRows :: Board -> [Number]
-findFullRows b = filter fullRow [h-1,h-2 .. 0]
+findFullRows b = filter fullRow [0 .. h-1]
   where
     w = cols b
     h = rows b
