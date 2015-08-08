@@ -10,7 +10,7 @@ maintainer:          masahiro.sakai@gmail.com
 -- copyright:           
 category:            Language
 build-type:          Simple
-extra-source-files:  README.md .travis.yml
+extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
@@ -24,6 +24,7 @@ library
                        , Sandbox
                        , Util
                        , Display
+                       , Play
   -- other-modules:       
   -- other-extensions:    
   build-depends:       aeson >= 0.9
@@ -51,5 +52,6 @@ test-suite test
                 , tasty-hunit ==0.9.*
                 , tasty-quickcheck ==0.8.*
                 , tasty-th
+                , transformers >= 0.4.2
   Default-Language: Haskell2010
   Other-Extensions: TemplateHaskell
