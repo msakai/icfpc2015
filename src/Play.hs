@@ -36,8 +36,11 @@ play = do
       ; modify (gameStep cmd)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
-      ; if gsOver gm then return () else loop
+      ; if gsOver gm then dumpOutput gm else loop
       }
+
+dumpOutput :: GameState -> Game ()
+dumpOutput gm = return ()
 
 hGetCommand :: Handle -> IO Command
 hGetCommand h =  maybe (hGetCommand h) return . keyToCommand =<< hGetChar h
