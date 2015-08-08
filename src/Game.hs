@@ -63,3 +63,16 @@ initSource arr rs = map ((arr Arr.!) . (`mod` m)) rs
   where
     m     = h + 1
     (l,h) = Arr.bounds arr
+
+data GameState = GameState 
+  { gsProblemId :: Number
+  , gsSeed      :: Number
+  , gsTag       :: String
+  , gsUnits     :: [Unit]
+  --
+  , gsBoard     :: Board
+  , gsCurUnit   :: Unit
+  , gsSource    :: [Unit]
+  --
+  , gsCommands  :: Commands
+  }
