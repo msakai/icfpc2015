@@ -21,7 +21,6 @@ library
                        , Types
                        , Unit
                        , PRNG
-                       , Sandbox
                        , Util
                        , Display
                        , Play
