@@ -36,11 +36,28 @@ keyToCommand ' ' = Just (Turn CW)
 keyToCommand 'z' = Just (Turn CCW)
 keyToCommand _   = Nothing
 
-test :: IO ()
-test = do
+display :: GameState -> IO ()
+display s = do
+  putStrLn $ "Problem " ++ show (gsProblemId s)
+  putStrLn $ "Seed " ++ show (gsSeed s)
+  putStrLn $ "Tag " ++ show (gsTag s)
+  putStrLn $ "-------------"
+  printBox $ dispBoard (gsBoard s) [ gsCurUnit s ]
+  putStrLn $ "-------------"
+  putStrLn $ "Locked " ++ show (gsLocked s)
+  putStrLn $ "Over " ++ show (gsOver s)
+
+test :: Int -> String -> IO ()
+test n tg = do
+  Just inp <- readProblem ("problems/problem_" ++ show n ++ ".json")
+  let gss = initGameStates tg inp
   hSetBuffering stdin NoBuffering
   hSetBuffering stdout NoBuffering
-  forever $ do
-    c <- hGetCommand stdin
-    hPutStrLn stdout $ show c
-    hFlush stdout
+  display (head gss)
+  step (head gss)
+  where
+    step s = do
+      c <- hGetCommand stdin
+      let s' = gameStep c s
+      display s'
+      step s'
