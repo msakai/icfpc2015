@@ -57,3 +57,14 @@ test-suite test
                 , transformers >= 0.4.2
   Default-Language: Haskell2010
   Other-Extensions: TemplateHaskell
+
+executable submit
+  Main-is: submit.hs
+  Build-Depends:
+      base
+    , bytestring
+    , http-client
+    , http-client-tls
+    , icfpc2015
+  Default-Language: Haskell2010
+
