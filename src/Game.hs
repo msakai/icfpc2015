@@ -158,3 +158,12 @@ game = undefined
 
 gameDisplay :: GameState -> IO ()
 gameDisplay gm = PPr.printBox $ dispBoard (gsBoard gm) [gsCurUnit gm]
+
+dumpOutputItem :: GameState -> OutputItem
+dumpOutputItem gm = OutputItem
+  { problemId = gsProblemId gm
+  , seed      = gsSeed gm
+  , tag       = gsTag gm
+  , solution  = reverse (gsCommands gm)
+  }
+
