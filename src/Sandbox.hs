@@ -24,12 +24,7 @@ dispAllProblemsStart = forM_ [0..20] $ \n ->
   putStrLn ("Problem : " ++ show n) >> dispProblemStart n
 
 hGetCommand :: Handle -> IO Command
-hGetCommand h = do
-  ch <- hGetChar h
-  let mc = keyToCommand ch
-  if isNothing mc
-  then hGetCommand h
-  else return $ fromJust mc
+hGetCommand h =  maybe (hGetCommand h) return . keyToCommand =<< hGetChar h
 
 keyToCommand :: Char -> Maybe Command
 keyToCommand 'h' = Just (Move W)
