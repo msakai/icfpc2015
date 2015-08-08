@@ -14,6 +14,8 @@ import Unit
 import Util
 import Types
 
+data Meta = Nop | Dump | Quit deriving (Show, Eq)
+
 initGameIO :: Int -> String-> IO [GameState]
 initGameIO n tg = do
   { input <- readProblem ("problems/problem_"++show n++".json")
@@ -38,29 +40,40 @@ play = do
   ; loop
   }
   where
-    loop = do
-      { cmd <- liftIO (hGetCommand stdin)
-      ; modify (gameStep cmd)
+    dump cont = do
+      { gm <- get
+      ; liftIO $ putStrLn $ show $ reverse $ gsCommands gm
+      ; cont
+      }
+    quit = liftIO $ putStrLn "QUIT"
+    opMeta Quit = dump quit
+    opMeta Dump = dump loop
+    opMeta Nop  = loop
+    opCommand cmd = do
+      { modify (gameStep cmd)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
       ; case gsStatus gm of 
           Running -> loop
-          _       -> dumpOutput gm
+          _       -> quit
+      }
+    loop = do
+      { cmd <- liftIO (hGetCommand stdin)
+      ; either opMeta opCommand cmd
       }
 
-dumpOutput :: GameState -> Game ()
-dumpOutput gm = return ()
+hGetCommand :: Handle -> IO (Either Meta Command)
+hGetCommand h =  return . keyToCommand =<< hGetChar h
 
-hGetCommand :: Handle -> IO Command
-hGetCommand h =  maybe (hGetCommand h) return . keyToCommand =<< hGetChar h
-
-keyToCommand :: Char -> Maybe Command
-keyToCommand 'h' = Just (Move W)
-keyToCommand 'l' = Just (Move E)
-keyToCommand 'j' = Just (Move SW)
-keyToCommand 'k' = Just (Move SE)
-keyToCommand ' ' = Just (Turn CW)
-keyToCommand 'z' = Just (Turn CCW)
-keyToCommand _   = Nothing
+keyToCommand :: Char -> Either Meta Command
+keyToCommand 'h' = Right (Move W)
+keyToCommand 'l' = Right (Move E)
+keyToCommand 'j' = Right (Move SW)
+keyToCommand 'k' = Right (Move SE)
+keyToCommand ' ' = Right (Turn CW)
+keyToCommand 'z' = Right (Turn CCW)
+keyToCommand 'q' = Left Quit
+keyToCommand 'd' = Left Dump
+keyToCommand _   = Left Nop
