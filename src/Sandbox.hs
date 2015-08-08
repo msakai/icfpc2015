@@ -44,6 +44,7 @@ display s = do
   putStrLn $ "-------------"
   printBox $ dispBoard (gsBoard s) [ gsCurUnit s ]
   putStrLn $ "-------------"
+  putStrLn $ "CurUnit " ++ show (gsCurUnit s)
   putStrLn $ "Locked " ++ show (gsLocked s)
   putStrLn $ "Over " ++ show (gsOver s)
 
