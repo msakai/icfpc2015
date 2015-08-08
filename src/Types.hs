@@ -1,6 +1,7 @@
 module Types where
 
 type Number = Int
+type Pt = Int
 
 data FaceDir
   = FaceNW
