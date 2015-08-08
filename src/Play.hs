@@ -41,21 +41,23 @@ play = do
   }
   where
     dump cont = do
-      gm <- get
-      liftIO $ putStrLn $ show $ reverse $ gsCommands gm
-      cont
-    quit = do
-      liftIO $ putStrLn "QUIT"
+      { gm <- get
+      ; liftIO $ putStrLn $ show $ reverse $ gsCommands gm
+      ; cont
+      }
+    quit = liftIO $ putStrLn "QUIT"
     opMeta Quit = dump quit
     opMeta Dump = dump loop
-    opMeta Nop = loop
+    opMeta Nop  = loop
     opCommand cmd = do
       { modify (gameStep cmd)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
-      ; if gsStatus gm == Finished then quit else loop
+      ; case gsStatus gm of 
+          Running -> loop
+          _       -> quit
       }
     loop = do
       { cmd <- liftIO (hGetCommand stdin)
