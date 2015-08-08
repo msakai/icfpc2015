@@ -70,7 +70,7 @@ initSource arr rs = map ((arr Arr.!) . (`mod` m)) rs
     m     = h + 1
     (l,h) = Arr.bounds arr
 
-data GameStatus = Running | Finished | Error
+data GameStatus = Running | Finished | Error deriving (Show, Eq)
 
 data GameState = GameState 
   { gsProblemId :: Number
