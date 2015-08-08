@@ -14,7 +14,6 @@ import Data.List
 import Data.Aeson
 import GHC.Generics
 
-import Command (CDir (..))
 import Types
 
 data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Generic)

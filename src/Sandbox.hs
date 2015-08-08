@@ -11,6 +11,7 @@ import Game
 import Display
 import Unit
 import Util
+import Types
 
 dispProblemStart :: Int -> IO ()
 dispProblemStart n = do

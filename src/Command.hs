@@ -14,13 +14,7 @@ import Data.Maybe (isJust)
 import Data.Tuple (swap)
 import GHC.Generics
 
-data MDir = E | W | SE | SW deriving (Show, Eq, Ord, Generic)
-data CDir = CW | CCW deriving (Show, Eq, Ord, Generic)
-
-instance FromJSON MDir
-instance ToJSON MDir
-instance FromJSON CDir
-instance ToJSON CDir
+import Types
 
 data Command = Move MDir | Turn CDir deriving (Show, Eq, Ord, Generic)
 type Commands = [Command]
