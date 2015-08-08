@@ -1,16 +1,16 @@
 module Board where
 
-import Data.Ix (inRange)
+import Data.Ix (inRange,range)
 import Data.List (foldl')
 import Data.Set (Set(..))
 import qualified Data.Set as Set
-  (notMember,insert,size,filter,split,union,mapMonotonic)
+  (notMember,insert,size,filter,split,union,mapMonotonic,fromList,elems)
 
 import Cell
 import Unit
 import Types
 
-data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell }
+data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell } deriving (Show,Eq)
 
 
 valid :: Board -> Unit -> Maybe Unit
@@ -40,3 +40,11 @@ clearRow b r = case Set.split (Cell { x = 0, y = r }) fs of
   (ps,qs) -> b { fulls = ps `Set.union` Set.mapMonotonic (\ c -> c { y = y c - 1 }) qs }
   where 
     fs = Set.filter ((r /=) . y) (fulls b)
+
+--
+
+sampleBoard :: Board
+sampleBoard = Board { cols = 5, rows = 10
+                    , fulls = Set.fromList (range (cell (1,0), cell (3,4)))
+                              `Set.union`
+                              Set.fromList (range (cell (0,1),cell (4,3))) }
