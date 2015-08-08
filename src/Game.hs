@@ -7,6 +7,7 @@
 module Game where
 
 import Data.Aeson
+import qualified Data.Array as Arr
 import qualified Data.Set as Set
 import Data.Ix (inRange)
 import GHC.Generics
@@ -16,6 +17,7 @@ import Types
 import Cell
 import Unit
 import Command
+import PRNG
 
 data Input = Input { id :: Number
                    , units :: [Unit]
@@ -47,5 +49,16 @@ instance ToJSON Output
 initBoard :: Input -> Board
 initBoard i = Board { cols = width i, rows = height i, fulls = Set.fromList (filled i) }
 
-initSource :: Input -> [Unit]
-initSource =  undefined
+initSources :: Input -> [[Unit]]
+initSources input =  map (initSource arr . take (sourceLength input) . generate . fromIntegral)
+                         (sourceSeeds input)
+  where
+    us  = units input
+    len = length us
+    arr = Arr.listArray (0,len-1) us
+
+initSource :: Arr.Array Int Unit -> [Int] -> [Unit]
+initSource arr rs = map ((arr Arr.!) . (`mod` m)) rs
+  where
+    m     = h + 1
+    (l,h) = Arr.bounds arr

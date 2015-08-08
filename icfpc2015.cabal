@@ -26,6 +26,7 @@ library
   -- other-modules:       
   -- other-extensions:    
   build-depends:       aeson >= 0.9
+                     , array
                      , base >=4.7 && <4.9
                      , bytestring >=0.10 && <1.0
                      , containers >= 0.5.5
