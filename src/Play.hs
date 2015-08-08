@@ -56,10 +56,15 @@ play = do
   where
     dump = do
       { gm <- get
-      ; liftIO $ putStrLn $ show $ reverse $ gsCommands gm
+      ; let cmds = reverse $ gsCommands gm
+      ; liftIO $ print $ cmds
+      ; liftIO $ print $ head $ commandsToString cmds
       }
-    quit = liftIO $ putStrLn "QUIT"
-    opMeta Quit = dump >> quit
+    quit = do
+      { liftIO $ putStrLn "QUIT"
+      ; dump
+      }
+    opMeta Quit = quit
     opMeta Dump = dump >> loop
     opMeta Nop  = loop
     opCommand cmd = modify (gameStep cmd) >> loop
