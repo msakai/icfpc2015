@@ -10,6 +10,7 @@ import Control.Monad.Trans.State
 import Data.Aeson
 import qualified Data.Array as Arr
 import qualified Data.Set as Set
+import Data.List
 import Data.Ix (inRange)
 import GHC.Generics
 import Prelude hiding (id)
@@ -113,6 +114,9 @@ initGameState d (sd,src) = d { gsSeed    = sd
                              }
   where
     iu = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
+
+gameStepN :: [Command] -> GameState -> GameState
+gameStepN cmds old = foldl' (flip gameStep) old cmds
 
 gameStep :: Command -> GameState -> GameState
 gameStep cmd old = old { gsBoard     = newboard
