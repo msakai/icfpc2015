@@ -6,12 +6,15 @@
  #-}
 module Game where
 
+import Control.Monad.Trans.State
 import Data.Aeson
 import qualified Data.Array as Arr
 import qualified Data.Set as Set
 import Data.Ix (inRange)
 import GHC.Generics
 import Prelude hiding (id)
+
+import qualified Text.PrettyPrint.Boxes as PPr
 
 import Board
 import Types
@@ -118,7 +121,7 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsTrace     = if lockedp then oldtrace else Set.insert newcur oldtrace
                        }
   where
-    fleshcur  = head oldsource
+    fleshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
     oldtrace  = gsTrace old
     oldcur    = gsCurUnit old
@@ -131,3 +134,10 @@ issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir
 issue (Turn dir) = turn dir
 
+type Game = StateT GameState IO
+
+game :: Game ()
+game = undefined
+
+gameDisplay :: GameState -> IO ()
+gameDisplay gm = PPr.printBox $ dispBoard (gsBoard gm) [gsCurUnit gm]
