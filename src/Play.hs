@@ -58,14 +58,13 @@ play = do
   ; loop
   }
   where
-    dump cont = do
+    dump = do
       { gm <- get
       ; liftIO $ putStrLn $ show $ reverse $ gsCommands gm
-      ; cont
       }
     quit = liftIO $ putStrLn "QUIT"
-    opMeta Quit = dump quit
-    opMeta Dump = dump loop
+    opMeta Quit = dump >> quit
+    opMeta Dump = dump >> loop
     opMeta Nop  = loop
     opCommand cmd = do
       { modify (gameStep cmd)
