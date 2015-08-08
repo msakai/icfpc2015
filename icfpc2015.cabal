@@ -25,6 +25,7 @@ library
                        , Display
                        , Play
                        , Tactics.RandomZigZag
+                       , Tactics.SimpleFor1
   -- other-modules:       
   -- other-extensions:    
   build-depends:       aeson >= 0.9
