@@ -14,6 +14,8 @@ import Unit
 import Util
 import Types
 
+data Meta = None | Dump | Quit deriving (Show, Eq)
+
 initGameIO :: Int -> String-> IO [GameState]
 initGameIO n tg = do
   { input <- readProblem ("problems/problem_"++show n++".json")
@@ -39,7 +41,7 @@ play = do
   }
   where
     loop = do
-      { cmd <- liftIO (hGetCommand stdin)
+      { Right cmd <- liftIO (hGetCommand stdin)
       ; modify (gameStep cmd)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
@@ -51,14 +53,16 @@ play = do
 dumpOutput :: GameState -> Game ()
 dumpOutput gm = return ()
 
-hGetCommand :: Handle -> IO Command
-hGetCommand h =  maybe (hGetCommand h) return . keyToCommand =<< hGetChar h
+hGetCommand :: Handle -> IO (Either Meta Command)
+hGetCommand h =  return . keyToCommand =<< hGetChar h
 
-keyToCommand :: Char -> Maybe Command
-keyToCommand 'h' = Just (Move W)
-keyToCommand 'l' = Just (Move E)
-keyToCommand 'j' = Just (Move SW)
-keyToCommand 'k' = Just (Move SE)
-keyToCommand ' ' = Just (Turn CW)
-keyToCommand 'z' = Just (Turn CCW)
-keyToCommand _   = Nothing
+keyToCommand :: Char -> Either Meta Command
+keyToCommand 'h' = Right (Move W)
+keyToCommand 'l' = Right (Move E)
+keyToCommand 'j' = Right (Move SW)
+keyToCommand 'k' = Right (Move SE)
+keyToCommand ' ' = Right (Turn CW)
+keyToCommand 'z' = Right (Turn CCW)
+keyToCommand 'q' = Left Quit
+keyToCommand 'd' = Left Dump
+keyToCommand _   = Left None
