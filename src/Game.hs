@@ -9,7 +9,6 @@ module Game where
 import Control.Monad.Trans.State
 import Data.Aeson
 import qualified Data.Array as Arr
-import Data.List
 import qualified Data.Set as Set
 import Data.Ix (inRange)
 import GHC.Generics
@@ -112,9 +111,6 @@ initGameState d (sd,src) = d { gsSeed    = sd
                              , gsSource   = tail src
                              }
 
-gameStepN :: [Command] -> GameState -> GameState
-gameStepN cmds old = foldl' (flip gameStep) old cmds
-                           
 gameStep :: Command -> GameState -> GameState
 gameStep cmd old = old { gsBoard     = newboard
                        , gsCurUnit   = if lockedp then fleshcur else newcur
