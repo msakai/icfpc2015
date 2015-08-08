@@ -32,3 +32,21 @@ oppositeFaceDir FaceNW = FaceSE
 oppositeFaceDir FaceNE = FaceSW
 oppositeFaceDir FaceSE = FaceNW
 oppositeFaceDir FaceSW = FaceNE
+
+turnFaceDir :: CDir -> FaceDir -> FaceDir
+turnFaceDir CW = f
+  where
+    f FaceNW = FaceNE
+    f FaceNE = FaceE
+    f FaceE  = FaceSE
+    f FaceSE = FaceSW
+    f FaceSW = FaceW
+    f FaceW  = FaceNW
+turnFaceDir CCW = f
+  where
+    f FaceNE = FaceNW
+    f FaceE  = FaceNE
+    f FaceSE = FaceE
+    f FaceSW = FaceSE
+    f FaceW  = FaceSW
+    f FaceNW = FaceW
