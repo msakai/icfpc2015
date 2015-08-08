@@ -12,7 +12,7 @@ import Cell
 import qualified Command as C
 import Types
 
-data Unit = Unit { members :: [Cell], pivot :: Cell } deriving (Show, Eq, Generic)
+data Unit = Unit { members :: [Cell], pivot :: Cell } deriving (Show, Ord, Eq, Generic)
 
 instance FromJSON Unit
 instance ToJSON Unit
@@ -53,4 +53,3 @@ turn :: C.CDir -> Unit -> Unit
 turn dir u@Unit{ members, pivot } = u{ members = map f members }
   where
     f = turnCell dir pivot
-

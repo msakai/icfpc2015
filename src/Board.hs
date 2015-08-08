@@ -13,13 +13,12 @@ import Types
 data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell } deriving (Show,Eq)
 
 
-valid :: Board -> Unit -> Maybe Unit
+valid :: Board -> Unit -> Bool
 valid b u 
- = if and (map (flip Set.notMember fs) cs) && all (inRange (cell (0,0), cell (cols b -1, rows b -1))) cs
-   then Just u else Nothing
-  where
-    fs = fulls b
-    cs = members u
+ = and (map (flip Set.notMember fs) cs) && all (inRange (cell (0,0), cell (cols b -1, rows b -1))) cs
+   where
+     fs = fulls b
+     cs = members u
 
 lockUnit :: Board -> Unit -> Board
 lockUnit b u = b { fulls = foldr Set.insert (fulls b) (members u) }
