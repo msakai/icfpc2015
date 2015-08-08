@@ -37,7 +37,7 @@ clearFullRows b = foldl' clearRow b (findFullRows b)
 
 clearRow :: Board -> Number -> Board
 clearRow b r = case Set.split (Cell { x = 0, y = r }) fs of
-  (ps,qs) -> b { fulls = ps `Set.union` Set.mapMonotonic (\ c -> c { y = y c - 1 }) qs }
+  (ps,qs) -> b { fulls = Set.mapMonotonic (\ c -> c { y = y c + 1 }) ps `Set.union` qs }
   where 
     fs = Set.filter ((r /=) . y) (fulls b)
 
