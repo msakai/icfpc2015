@@ -2,8 +2,7 @@
 
 # The following enables several GHC versions to be tested; often it's enough to test only against the last release in a major GHC version. Feel free to omit lines listings versions you don't need/want testing for.
 env:
- - CABALVER=1.18 GHCVER=7.6.3
- - CABALVER=1.18 GHCVER=7.8.3 COVERAGE=1
+ - CABALVER=1.18 GHCVER=7.8.4 COVERAGE=1
  - CABALVER=1.22 GHCVER=7.10.2
 # - CABALVER=head GHCVER=head   # see section about GHC HEAD snapshots
 
@@ -34,7 +33,7 @@ script:
  - cabal configure --enable-tests --enable-benchmarks -v2 $([ "$COVERAGE" = "1" ] && echo "--enable-library-coverage") # -v2 provides useful information for debugging
  - cabal build   # this builds all libraries and executables (including tests/benchmarks)
  - cabal test
- - cabal check
+# - cabal check
  - cabal sdist   # tests that a source-distribution can be generated
 
 # The following scriptlet checks that the resulting source distribution can be built & installed
