@@ -14,7 +14,7 @@ import Unit
 import Util
 import Types
 
-data Meta = None | Dump | Quit deriving (Show, Eq)
+data Meta = Nop | Dump | Quit deriving (Show, Eq)
 
 initGameIO :: Int -> String-> IO [GameState]
 initGameIO n tg = do
@@ -40,18 +40,27 @@ play = do
   ; loop
   }
   where
-    loop = do
-      { Right cmd <- liftIO (hGetCommand stdin)
-      ; modify (gameStep cmd)
+    dump cont = do
+      gm <- get
+      liftIO $ putStrLn $ show $ reverse $ gsCommands gm
+      cont
+    quit = do
+      liftIO $ putStrLn "QUIT"
+    opMeta Quit = dump quit
+    opMeta Dump = dump loop
+    opMeta Nop = loop
+    opCommand cmd = do
+      { modify (gameStep cmd)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
-      ; if gsOver gm then dumpOutput gm else loop
+      ; if gsOver gm then quit else loop
       }
-
-dumpOutput :: GameState -> Game ()
-dumpOutput gm = return ()
+    loop = do
+      { cmd <- liftIO (hGetCommand stdin)
+      ; either opMeta opCommand cmd
+      }
 
 hGetCommand :: Handle -> IO (Either Meta Command)
 hGetCommand h =  return . keyToCommand =<< hGetChar h
@@ -65,4 +74,4 @@ keyToCommand ' ' = Right (Turn CW)
 keyToCommand 'z' = Right (Turn CCW)
 keyToCommand 'q' = Left Quit
 keyToCommand 'd' = Left Dump
-keyToCommand _   = Left None
+keyToCommand _   = Left Nop
