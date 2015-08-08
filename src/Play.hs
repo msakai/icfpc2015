@@ -20,6 +20,12 @@ initGameIO n tg = do
   ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
   }
 
+testPlay :: Int -> IO ()
+testPlay n = do
+  gms <- initGameIO n "test-tag"
+  runStateT play (head gms)
+  return ()
+
 play :: Game ()
 play = do 
   { liftIO (hSetBuffering stdin NoBuffering)
