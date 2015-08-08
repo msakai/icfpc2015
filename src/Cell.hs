@@ -14,7 +14,6 @@ import Data.List
 import Data.Aeson
 import GHC.Generics
 
-import Command (CDir (..))
 import Types
 
 data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Generic)
@@ -57,24 +56,6 @@ moveCell dir c@Cell{ x, y } =
     FaceNE -> Cell{ x = if even y then x else x + 1, y = y - 1 }
     FaceSW -> Cell{ x = if even y then x - 1 else x, y = y + 1 }
     FaceSE -> Cell{ x = if even y then x else x + 1, y = y + 1 }
-
-turnFaceDir :: CDir -> FaceDir -> FaceDir
-turnFaceDir CW = f
-  where
-    f FaceNW = FaceNE
-    f FaceNE = FaceE
-    f FaceE  = FaceSE
-    f FaceSE = FaceSW
-    f FaceSW = FaceW
-    f FaceW  = FaceNW
-turnFaceDir CCW = f
-  where
-    f FaceNE = FaceNW
-    f FaceE  = FaceNE
-    f FaceSE = FaceE
-    f FaceSW = FaceSE
-    f FaceW  = FaceSW
-    f FaceNW = FaceW
 
 turnCell :: CDir -> Cell -> Cell -> Cell
 turnCell dir pivot@Cell{ x = px, y = py } = fromPath . map (turnFaceDir dir) . toPath

@@ -9,7 +9,6 @@ import Data.Aeson
 import Data.List
 import GHC.Generics
 import Cell
-import qualified Command as C
 import Types
 
 data Unit = Unit { members :: [Cell], pivot :: Cell } deriving (Show, Ord, Eq, Generic)
@@ -41,15 +40,15 @@ moveN' dir n Unit{ members, pivot } = Unit{ members = map f members, pivot = f p
   where
     f = moveCellN dir n
         
-move :: C.MDir -> Unit -> Unit
+move :: MDir -> Unit -> Unit
 move dir =
   case dir of
-    C.E  -> moveN' FaceE 1
-    C.W  -> moveN' FaceW 1
-    C.SE -> moveN' FaceSE 1
-    C.SW -> moveN' FaceSW 1
+    E  -> moveN' FaceE 1
+    W  -> moveN' FaceW 1
+    SE -> moveN' FaceSE 1
+    SW -> moveN' FaceSW 1
 
-turn :: C.CDir -> Unit -> Unit
+turn :: CDir -> Unit -> Unit
 turn dir u@Unit{ members, pivot } = u{ members = map f members }
   where
     f = turnCell dir pivot

@@ -1,7 +1,21 @@
+{-# LANGUAGE
+    DeriveGeneric
+ #-}
 module Types where
+
+import Data.Aeson
+import GHC.Generics    
 
 type Number = Int
 type Pt = Int
+
+data MDir = E | W | SE | SW deriving (Show, Eq, Ord, Generic)
+data CDir = CW | CCW deriving (Show, Eq, Ord, Generic)
+
+instance FromJSON MDir
+instance ToJSON MDir
+instance FromJSON CDir
+instance ToJSON CDir
 
 data FaceDir
   = FaceNW
@@ -18,3 +32,21 @@ oppositeFaceDir FaceNW = FaceSE
 oppositeFaceDir FaceNE = FaceSW
 oppositeFaceDir FaceSE = FaceNW
 oppositeFaceDir FaceSW = FaceNE
+
+turnFaceDir :: CDir -> FaceDir -> FaceDir
+turnFaceDir CW = f
+  where
+    f FaceNW = FaceNE
+    f FaceNE = FaceE
+    f FaceE  = FaceSE
+    f FaceSE = FaceSW
+    f FaceSW = FaceW
+    f FaceW  = FaceNW
+turnFaceDir CCW = f
+  where
+    f FaceNE = FaceNW
+    f FaceE  = FaceNE
+    f FaceSE = FaceE
+    f FaceSW = FaceSE
+    f FaceW  = FaceSW
+    f FaceNW = FaceW
