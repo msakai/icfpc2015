@@ -1,9 +1,10 @@
 module Play where
 
 import Control.Arrow ((&&&))
+import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.State
-import Data.Maybe (isJust, isNothing, maybe, fromJust)
+import Data.Maybe (isJust, isNothing, maybe, fromJust, catMaybes)
 import System.IO
 import Text.PrettyPrint.Boxes (printBox)
 
@@ -39,8 +40,8 @@ play = do
   }
   where
     loop = do
-      { cmd <- liftIO (hGetCommand stdin)
-      ; modify (gameStep cmd)
+      { cmds <- liftIO $ hGetCommands stdin
+      ; modify (gameStepN cmds)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
@@ -53,6 +54,9 @@ dumpOutput gm = return ()
 
 hGetCommand :: Handle -> IO Command
 hGetCommand h =  maybe (hGetCommand h) return . keyToCommand =<< hGetChar h
+
+hGetCommands :: Handle -> IO [Command]
+hGetCommands = liftM (catMaybes . fmap keyToCommand) . hGetLine
 
 keyToCommand :: Char -> Maybe Command
 keyToCommand 'h' = Just (Move W)
