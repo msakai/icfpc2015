@@ -2,6 +2,7 @@
     OverloadedStrings
   , DeriveGeneric
   , NamedFieldPuns
+  , BangPatterns
  #-}
 module Cell where
 
@@ -41,6 +42,12 @@ cell (x,y) = Cell {x = x, y = y}
 revcell :: (Number, Number) -> Cell
 revcell (y,x) = Cell {x = x, y = y}
 
+moveCellN :: FaceDir -> Int -> Cell -> Cell
+moveCellN !dir !n !c
+  | n == 0 = c
+  | n < 0  = moveCellN (oppositeFaceDir dir) (- n) c
+  | otherwise = moveCellN dir (n-1) (moveCell dir c)
+
 moveCell :: FaceDir -> Cell -> Cell
 moveCell dir c@Cell{ x, y } =
   case dir of
@@ -52,7 +59,7 @@ moveCell dir c@Cell{ x, y } =
     FaceSE -> Cell{ x = if even y then x else x + 1, y = y + 1 }
 
 turnFaceDir :: CDir -> FaceDir -> FaceDir
-turnFaceDir CW  = f
+turnFaceDir CW = f
   where
     f FaceNW = FaceNE
     f FaceNE = FaceE

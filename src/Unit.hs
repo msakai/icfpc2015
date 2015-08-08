@@ -17,17 +17,40 @@ data Unit = Unit { members :: [Cell], pivot :: Cell } deriving (Show, Eq, Generi
 instance FromJSON Unit
 instance ToJSON Unit
 
-move :: C.MDir -> Unit -> Unit
-move dir Unit{ members, pivot } = Unit{ members = map f members, pivot = f pivot }
+spawn :: (Int,Int) -> Unit -> Unit
+spawn (w,_) = center w . moveToTop
+
+moveToTop :: Unit -> Unit
+moveToTop u =
+  if even topmost
+     then moveN' FaceNW (topmost `div` 2) $ moveN' FaceNE (topmost `div` 2) $ u
+     else moveN' FaceNW (topmost `div` 2 + 1) $ moveN' FaceNE (topmost `div` 2) $ u
   where
-    f =
-      case dir of
-        C.E  -> moveCell FaceE
-        C.W  -> moveCell FaceW
-        C.SE -> moveCell FaceSE 
-        C.SW -> moveCell FaceSW
+    topmost = minimum [ y | Cell{ x, y } <- members u ]
+             
+center :: Number -> Unit -> Unit
+center w u@Unit{ members } = moveN' FaceE (leftSpace - leftMost) u
+  where
+    leftMost = minimum [ x | Cell{ x, y } <- members ]
+    rightMost = maximum [ x | Cell{ x, y } <- members ]
+    unitWidth = rightMost - leftMost + 1
+    leftSpace = (w - unitWidth) `div` 2
+
+moveN' :: FaceDir -> Int -> Unit -> Unit
+moveN' dir n Unit{ members, pivot } = Unit{ members = map f members, pivot = f pivot }
+  where
+    f = moveCellN dir n
+        
+move :: C.MDir -> Unit -> Unit
+move dir =
+  case dir of
+    C.E  -> moveN' FaceE 1
+    C.W  -> moveN' FaceW 1
+    C.SE -> moveN' FaceSE 1
+    C.SW -> moveN' FaceSW 1
 
 turn :: C.CDir -> Unit -> Unit
 turn dir u@Unit{ members, pivot } = u{ members = map f members }
   where
     f = turnCell dir pivot
+

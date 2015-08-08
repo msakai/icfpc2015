@@ -15,6 +15,7 @@ import Types
 import qualified Command
 import qualified Cell
 import qualified PRNG
+import qualified Unit
 import qualified Util
 
 case_moveCell_1 = Cell.moveCell FaceSE (Cell.Cell 1 1) @?= Cell.Cell 2 2
@@ -45,6 +46,13 @@ case_PRNG_generate =
 case_readProblem = do
   r <- Util.readProblem "problems/problem_18.json"
   isJust r @? "failed to parse problem_18.json"
+
+
+exampleUnit1e = Unit.Unit{ Unit.members = [Cell.Cell 1 4, Cell.Cell 2 4, Cell.Cell 2 5], Unit.pivot = Cell.Cell 1 4 }
+exampleUnit1o = Unit.Unit{ Unit.members = [Cell.Cell 1 3, Cell.Cell 2 3, Cell.Cell 3 4], Unit.pivot = Cell.Cell 1 3 }
+
+case_spawnUnit_ExampleUnit1e = Unit.spawn (5,10) exampleUnit1e @?= Unit.Unit{ Unit.members = [Cell.Cell 1 0, Cell.Cell 2 0, Cell.Cell 2 1], Unit.pivot = Cell.Cell 1 0 }
+case_spawnUnit_ExampleUnit1o = Unit.spawn (5,10) exampleUnit1o @?= Unit.Unit{ Unit.members = [Cell.Cell 1 0, Cell.Cell 2 0, Cell.Cell 2 1], Unit.pivot = Cell.Cell 1 0 }
 
 main :: IO ()
 main = $(defaultMainGenerator)
