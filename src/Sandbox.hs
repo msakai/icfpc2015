@@ -54,6 +54,7 @@ test n tg = do
   let gss = initGameStates tg inp
   hSetBuffering stdin NoBuffering
   hSetBuffering stdout NoBuffering
+  hSetEcho stdin False
   display (head gss)
   step (head gss)
   where
