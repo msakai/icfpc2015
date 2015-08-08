@@ -6,8 +6,11 @@ import Control.Monad (forM_)
 import Data.Aeson hiding (decode')
 import Data.ByteString.Lazy.Char8 (pack)
 import System.Directory (createDirectoryIfMissing)
+import Text.PrettyPrint.Boxes
 
 import Game
+import Display
+import Unit
 
 convertProblemJsonToDat :: IO ()
 convertProblemJsonToDat = do

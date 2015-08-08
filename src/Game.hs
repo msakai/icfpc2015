@@ -15,6 +15,7 @@ import GHC.Generics
 import Board
 import Types
 import Cell
+import Display
 import Unit
 import Command
 import PRNG
