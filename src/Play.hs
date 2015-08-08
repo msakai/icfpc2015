@@ -45,7 +45,9 @@ play = do
       ; liftIO (gameDisplay gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
-      ; if gsOver gm then dumpOutput gm else loop
+      ; case gsStatus gm of 
+          Running -> loop
+          _       -> dumpOutput gm
       }
 
 dumpOutput :: GameState -> Game ()
