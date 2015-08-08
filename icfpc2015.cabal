@@ -10,7 +10,7 @@ maintainer:          masahiro.sakai@gmail.com
 -- copyright:           
 category:            Language
 build-type:          Simple
-extra-source-files:  README.md
+extra-source-files:  README.md .travis.yml
 cabal-version:       >=1.10
 
 library

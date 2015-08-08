@@ -9,8 +9,8 @@ import GHC.Generics
 type Number = Int
 type Pt = Int
 
-data MDir = E | W | SE | SW deriving (Show, Eq, Ord, Generic)
-data CDir = CW | CCW deriving (Show, Eq, Ord, Generic)
+data MDir = E | W | SE | SW deriving (Show, Eq, Ord, Enum, Bounded, Generic)
+data CDir = CW | CCW deriving (Show, Eq, Ord, Enum, Bounded, Generic)
 
 instance FromJSON MDir
 instance ToJSON MDir
@@ -24,6 +24,7 @@ data FaceDir
   | FaceSE
   | FaceSW
   | FaceW
+  deriving (Show, Eq, Ord, Enum, Bounded)
 
 oppositeFaceDir :: FaceDir -> FaceDir
 oppositeFaceDir FaceE = FaceW
