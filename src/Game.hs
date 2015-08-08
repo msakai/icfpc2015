@@ -122,18 +122,20 @@ gameStepN cmds old = foldl' (flip gameStep) old cmds
 
 gameStep :: Command -> GameState -> GameState
 gameStep cmd old = old { gsBoard     = newboard
-                       , gsCurUnit   = if lockedp then if fini then oldcur else fleshcur
+                       , gsCurUnit   = if lockedp then if fini || nospace then oldcur 
+                                                       else fleshcur
                                        else newcur
                        , gsSource    = if lockedp then tail oldsource else oldsource
                        , gsLocked    = lockedp
                        , gsStatus    = if Set.member newcur oldtrace then Game.Error
-                                       else if lockedp && fini then Game.Finished
+                                       else if (lockedp && fini) || nospace then Game.Finished
                                        else Game.Running
                        , gsCommands  = cmd : gsCommands old
                        , gsTrace     = if lockedp then Set.singleton fleshcur
                                        else Set.insert newcur oldtrace
                        }
   where
+    nospace   = not (valid newboard fleshcur)
     fini      = null oldsource
     fleshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
@@ -141,7 +143,8 @@ gameStep cmd old = old { gsBoard     = newboard
     oldcur    = gsCurUnit old
     newcur    = issue cmd oldcur
     oldboard  = gsBoard old
-    newboard  = if lockedp then lockUnit oldboard oldcur else oldboard
+    newboard  = if not lockedp then oldboard 
+                else clearFullRows (lockUnit oldboard oldcur)
     lockedp   = not (valid oldboard newcur)
 
 issue :: Command -> Unit -> Unit
