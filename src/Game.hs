@@ -70,6 +70,8 @@ initSource arr rs = map ((arr Arr.!) . (`mod` m)) rs
     m     = h + 1
     (l,h) = Arr.bounds arr
 
+data GameStatus = Running | Finished | Error
+
 data GameState = GameState 
   { gsProblemId :: Number
   , gsSeed      :: Number
@@ -81,7 +83,7 @@ data GameState = GameState
   , gsSource    :: [Unit]
   --
   , gsLocked    :: Bool
-  , gsOver      :: Bool
+  , gsStatus    :: GameStatus
   , gsCommands  :: Commands
   , gsTrace     :: Set.Set Unit
   }
@@ -98,7 +100,7 @@ defaultGameState tg input = GameState
   , gsSource    = undefined
   --
   , gsLocked    = False
-  , gsOver      = False
+  , gsStatus    = Running
   , gsCommands  = []
   , gsTrace     = Set.empty
   }
@@ -120,15 +122,19 @@ gameStepN cmds old = foldl' (flip gameStep) old cmds
 
 gameStep :: Command -> GameState -> GameState
 gameStep cmd old = old { gsBoard     = newboard
-                       , gsCurUnit   = if lockedp then fleshcur else newcur
+                       , gsCurUnit   = if lockedp then if fini then oldcur else fleshcur
+                                       else newcur
                        , gsSource    = if lockedp then tail oldsource else oldsource
                        , gsLocked    = lockedp
-                       , gsOver      = Set.member newcur oldtrace
+                       , gsStatus    = if Set.member newcur oldtrace then Game.Error
+                                       else if lockedp && fini then Game.Finished
+                                       else Game.Running
                        , gsCommands  = cmd : gsCommands old
                        , gsTrace     = if lockedp then Set.singleton fleshcur
                                        else Set.insert newcur oldtrace
                        }
   where
+    fini      = null oldsource
     fleshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
     oldtrace  = gsTrace old
