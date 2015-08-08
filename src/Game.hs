@@ -128,7 +128,7 @@ gameStep cmd old = old { gsBoard     = newboard
     newcur    = issue cmd oldcur
     oldboard  = gsBoard old
     newboard  = if lockedp then lockUnit oldboard oldcur else oldboard
-    lockedp   = valid oldboard newcur 
+    lockedp   = not (valid oldboard newcur)
 
 issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir

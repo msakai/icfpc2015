@@ -10,13 +10,18 @@ import Cell
 import Unit
 import Types
 
+import Debug.Trace
+
 data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell } deriving (Show,Eq)
 
 
 valid :: Board -> Unit -> Bool
 valid b u 
- = and (map (flip Set.notMember fs) cs) && all (inRange (cell (0,0), cell (cols b -1, rows b -1))) cs
+ =    trace ("not batting: "++show notBatting) notBatting
+   && trace ("in range:    "++show withinRange) withinRange
    where
+     notBatting  = and (map (flip Set.notMember fs) cs)
+     withinRange = all (inRange (cell (0,0), cell (cols b -1, rows b -1))) cs
      fs = fulls b
      cs = members u
 

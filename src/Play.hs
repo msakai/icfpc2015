@@ -14,7 +14,6 @@ import Unit
 import Util
 import Types
 
-
 initGameIO :: Int -> String-> IO [GameState]
 initGameIO n tg = do
   { input <- readProblem ("problems/problem_"++show n++".json")
@@ -28,6 +27,8 @@ play = do
   ; liftIO (hSetEcho stdin False)
   ; gm <- get
   ; liftIO (gameDisplay gm >> hFlush stdout)
+  ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
+  ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
   ; loop
   }
   where
@@ -36,6 +37,8 @@ play = do
       ; modify (gameStep cmd)
       ; gm <- get
       ; liftIO (gameDisplay gm >> hFlush stdout)
+      ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
+      ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
       ; if gsOver gm then return () else loop
       }
 
