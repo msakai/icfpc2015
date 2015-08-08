@@ -107,6 +107,5 @@ renderBoard canvas width height collors pivot = do
 
         when (Just (j,i) == pivot) $ do
           setFillColor $ RGB 0xff 0 0
-          let radius = sideSize / 4
-          --fill $ circle (x0 + sideSize * 1.5, y0 + sideSize * 1.5) sideSize
-          fill $ circle (x0 + sideSize - radius, y0 + sideSize - radius) radius
+          let radius = sideSize / 3
+          fill $ circle (x0 + sideSize * sqrt 3 / 2, y0 + sideSize) radius

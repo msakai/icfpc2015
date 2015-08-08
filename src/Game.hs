@@ -11,6 +11,7 @@ import qualified Data.Array as Arr
 import qualified Data.Set as Set
 import Data.Ix (inRange)
 import GHC.Generics
+import Prelude hiding (id)
 
 import Board
 import Types
@@ -50,10 +51,11 @@ instance ToJSON Output
 initBoard :: Input -> Board
 initBoard i = Board { cols = width i, rows = height i, fulls = Set.fromList (filled i) }
 
-initSources :: Input -> [[Unit]]
-initSources input =  map (initSource arr . take (sourceLength input) . generate . fromIntegral)
-                         (sourceSeeds input)
+initSources :: Input -> [(Number,[Unit])]
+initSources input = zip seeds 
+                  $ map (initSource arr . take (sourceLength input) . generate . fromIntegral) seeds
   where
+    seeds = sourceSeeds input
     us  = units input
     len = length us
     arr = Arr.listArray (0,len-1) us
@@ -74,5 +76,58 @@ data GameState = GameState
   , gsCurUnit   :: Unit
   , gsSource    :: [Unit]
   --
+  , gsLocked    :: Bool
+  , gsOver      :: Bool
   , gsCommands  :: Commands
+  , gsTrace     :: Set.Set Unit
   }
+
+defaultGameState :: String -> Input -> GameState
+defaultGameState tg input = GameState
+  { gsProblemId = id input
+  , gsSeed      = undefined
+  , gsTag       = tg
+  , gsUnits     = units input
+  -- 
+  , gsBoard     = initBoard input
+  , gsCurUnit   = undefined
+  , gsSource    = undefined
+  --
+  , gsLocked    = False
+  , gsOver      = False
+  , gsCommands  = []
+  , gsTrace     = Set.empty
+  }
+
+initGameStates :: String -> Input -> [GameState]
+initGameStates tg input = map (initGameState (defaultGameState tg input)) (initSources input)
+
+initGameState :: GameState -> (Number,[Unit]) -> GameState
+initGameState d (sd,src) = d { gsSeed    = sd
+                             , gsCurUnit = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
+                             , gsSource   = tail src
+                             }
+
+gameStep :: Command -> GameState -> GameState
+gameStep cmd old = old { gsBoard     = newboard
+                       , gsCurUnit   = if lockedp then fleshcur else newcur
+                       , gsSource    = if lockedp then tail oldsource else oldsource
+                       , gsLocked    = lockedp
+                       , gsOver      = Set.member newcur oldtrace
+                       , gsCommands  = cmd : gsCommands old
+                       , gsTrace     = if lockedp then oldtrace else Set.insert newcur oldtrace
+                       }
+  where
+    fleshcur  = head oldsource
+    oldsource = gsSource old
+    oldtrace  = gsTrace old
+    oldcur    = gsCurUnit old
+    newcur    = issue cmd oldcur
+    oldboard  = gsBoard old
+    newboard  = if lockedp then lockUnit oldboard oldcur else oldboard
+    lockedp   = valid oldboard newcur 
+
+issue :: Command -> Unit -> Unit
+issue (Move dir) = move dir
+issue (Turn dir) = turn dir
+
