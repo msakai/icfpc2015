@@ -50,3 +50,7 @@ script:
 
 after_script:
  - "[ -n \"$COVERAGE\" ] && hpc-coveralls test --exclude-dir=test || true"
+
+notifications:
+  slack:
+    secure: q41AkjiEERaYmpcPr/uZxi0r5AmheE7pJxrxFBFfogias80fwHOjxlUUXy56Rh2cqRn2e5waLBB2TMDESqDcmaJpbMaILDH44O9G7gd9HKAALz+X57H7ao+JIq8KHu8x9DNq2aiRFjCOmzw4yT/MaZ/No6pEL57sGnSbl4AT+V1BKQ4dVkitdWb5Wbd/ol7VLPiUg+VIpr2uNQNVm1oE0VFcEhfqKI/bjl1NLJFovuLf76OZlIIy1dcCHKGYdhdX0cdDyagHBw5V38Z+RxcTEa7nYdGhhytv1/zqLAuMliF9qCtuSNgjtSxngXH34HV6fVnhNh3RsLafDr7vGcSUpxBT7jiFM2sOOK7To+xbhnFvcanbeUAq6ngQ57nIGM/us0k6AXMPdrWSZtJVMZlaNx4Uwiy/E8FzS6rrx0VkDXb9gKgRB1x4DXUTzcyJsbGOq6u7Fi6c0y8IjZIdEr3Peh9xsnITJlqQHm6lAHHFrA9KiTZjzUbWO8yzesNF2SVv6LTEtkkivNVdmHol1qLkbUGx5/oItsuDXpNcqDvlA30jx+sfx2TxpEe074MdOtDH4VYR06Kza+/t09a3PDJnx6uoONNbtyWylt+wPeuqWJ6Sk+z0JDa+HyVvk061eCx1JVSFpD9MI8C3ZT3iB37rjbaFNAZkO/4PkqkF4bHHx18=
