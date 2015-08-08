@@ -22,11 +22,29 @@ initGameIO n tg = do
   ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
   }
 
-testPlay :: Int -> IO ()
-testPlay n = do
+testPlay :: Int -> Game () -> IO ()
+testPlay n player = do
   gms <- initGameIO n "test-tag"
-  runStateT play (head gms)
+  runStateT player (head gms)
   return ()
+
+play' :: (GameState -> IO Commands) -> Game ()
+play' ani = do
+  { gm <- get
+  ; liftIO $ gameDisplay gm
+  ; loop gm
+  }
+  where
+    quit = return ()
+    loop gm = do
+      { (c:cs) <- liftIO (ani gm)
+      ; modify (gameStep c)
+      ; gm <- get
+      ; liftIO (gameDisplay gm)
+      ; case gsStatus gm of
+          Running -> loop gm
+          _       -> quit
+      }
 
 play :: Game ()
 play = do 
