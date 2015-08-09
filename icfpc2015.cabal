@@ -75,3 +75,10 @@ executable submit
     , icfpc2015
   Default-Language: Haskell2010
 
+executable play_cui
+  HS-Source-Dirs: play_cui
+  Main-is: Main.hs
+  Build-Depends:
+      base
+    , icfpc2015
+  Default-Language: Haskell2010
