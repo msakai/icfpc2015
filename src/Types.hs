@@ -12,8 +12,8 @@ type ProblemId = Int
 type WaituS = Integer
 type Tag = String
 
-data MDir = E | W | SE | SW deriving (Show, Eq, Ord, Enum, Bounded, Generic)
-data CDir = CW | CCW deriving (Show, Eq, Ord, Enum, Bounded, Generic)
+data MDir = E | W | SE | SW deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
+data CDir = CW | CCW deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
 
 instance FromJSON MDir
 instance ToJSON MDir

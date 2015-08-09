@@ -22,7 +22,7 @@ import Unit
 import Util
 import Types
 
-data Meta = Nop | Dump | Quit deriving (Show, Eq)
+data Meta = Nop | Dump | Quit | Batch deriving (Show, Eq)
 
 initGameIO :: ProblemId -> Tag -> IO [GameState]
 initGameIO n tg = do
@@ -96,6 +96,25 @@ play = do
     opMeta Quit = quit
     opMeta Dump = dump >> loop
     opMeta Nop  = loop
+    opMeta Batch = do
+      s <- liftIO $ do
+        hSetBuffering stdin LineBuffering
+        hSetBuffering stdout LineBuffering                      
+        hSetEcho stdin True
+        putStr "reading [Command] expression in haskell > "
+        hFlush stdout
+        s <- getLine
+        hSetBuffering stdin NoBuffering
+        hSetBuffering stdout NoBuffering
+        hSetEcho stdin False
+        return s
+      case reads s of
+        (cmds,_) : _ -> do
+          modify (gameStepN cmds)
+          loop
+        _ -> do
+          liftIO $ putStrLn "parse error"
+          loop
     opCommand cmd = modify (gameStep cmd) >> loop
     loop = do
       { gm <- get
@@ -122,6 +141,7 @@ keyToCommand ' ' = Right (Turn CW)
 keyToCommand 'z' = Right (Turn CCW)
 keyToCommand 'q' = Left Quit
 keyToCommand 'd' = Left Dump
+keyToCommand 'b' = Left Batch
 keyToCommand _   = Left Nop
 
 

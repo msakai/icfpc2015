@@ -16,7 +16,7 @@ import GHC.Generics
 
 import Types
 
-data Command = Move MDir | Turn CDir deriving (Show, Eq, Ord, Generic)
+data Command = Move MDir | Turn CDir deriving (Show, Read, Eq, Ord, Generic)
 type Commands = [Command]
 
 instance FromJSON Command
