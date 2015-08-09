@@ -48,7 +48,7 @@ script:
    cd ..
 
 after_script:
- - "[ -n \"$COVERAGE\" ] && hpc-coveralls test --repo-token=J6xomQoDhmK0DelDW0B84IL7dYEbu4DxW --exclude-dir=test || true"
+ - "[ -n \"$COVERAGE\" ] && hpc-coveralls --repo-token=J6xomQoDhmK0DelDW0B84IL7dYEbu4DxW --exclude-dir=test --display-report --curl-verbose test || true"
 
 notifications:
   slack:
