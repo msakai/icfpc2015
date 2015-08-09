@@ -13,7 +13,7 @@ import GHC.Generics
 import Cell
 import Types
 
-data Unit = Unit { members :: Set Cell, pivot :: Cell } deriving (Show, Ord, Eq, Generic)
+data Unit = Unit { members :: !(Set Cell), pivot :: !Cell } deriving (Show, Ord, Eq, Generic)
 
 instance FromJSON Unit
 instance ToJSON Unit
