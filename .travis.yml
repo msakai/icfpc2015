@@ -30,7 +30,7 @@ install:
      git clone https://github.com/msakai/hpc-coveralls.git
      cd hpc-coveralls
      git checkout travis-pro-spike
-     cabal install hpc-coveralls --avoid-reinstalls
+     cabal install --avoid-reinstalls
      cd ..
    fi
 # - "[ -n \"$COVERAGE\" ] && cabal install hpc-coveralls --avoid-reinstalls || true"
