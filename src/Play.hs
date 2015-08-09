@@ -18,7 +18,7 @@ import Types
 
 data Meta = Nop | Dump | Quit deriving (Show, Eq)
 
-initGameIO :: Int -> String-> IO [GameState]
+initGameIO :: ProblemId -> Tag -> IO [GameState]
 initGameIO n tg = do
   { input <- readProblem ("problems/problem_"++show n++".json")
   ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
