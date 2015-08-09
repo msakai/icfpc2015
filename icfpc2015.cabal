@@ -27,6 +27,7 @@ library
                        , Play
                        , Tactics.RandomZigZag
                        , Tactics.RandomWalk
+                       , Tactics.RandomWalk2
                        , Tactics.SimpleFor1
                        , Tactics.SimpleFor1b                       
   -- other-modules:       
