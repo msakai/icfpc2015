@@ -56,9 +56,7 @@ testPlay n sd player = do
                  "-seed"++show (gsSeed gms')++
                  "-"++show (gsScore gms')++"pt-"++
                  tag++".json"
-  handle <- openFile filename WriteMode
-  hPutStr handle $ LBS.unpack $ encode [ toJSON (dumpOutputItem gms') ]
-  hClose handle
+  LBS.writeFile filename $ encode [ toJSON (dumpOutputItem gms') ]
   return ()
 
 play' :: WaituS -> Player -> Game ()
