@@ -22,7 +22,7 @@ import Unit
 import Util
 import Types
 
-data Meta = Nop | Dump | Quit | Batch deriving (Show, Eq)
+data Meta = Nop | Dump | Quit | BatchH | BatchS deriving (Show, Eq)
 
 initGameIO :: ProblemId -> Tag -> IO [GameState]
 initGameIO n tg = do
@@ -96,18 +96,8 @@ play = do
     opMeta Quit = quit
     opMeta Dump = dump >> loop
     opMeta Nop  = loop
-    opMeta Batch = do
-      s <- liftIO $ do
-        hSetBuffering stdin LineBuffering
-        hSetBuffering stdout LineBuffering                      
-        hSetEcho stdin True
-        putStr "reading [Command] expression in haskell > "
-        hFlush stdout
-        s <- getLine
-        hSetBuffering stdin NoBuffering
-        hSetBuffering stdout NoBuffering
-        hSetEcho stdin False
-        return s
+    opMeta BatchH = do
+      s <- getLineWithPrompt "reading [Command] expression in haskell > "
       case reads s of
         (cmds,_) : _ -> do
           modify (gameStepN cmds)
@@ -115,6 +105,10 @@ play = do
         _ -> do
           liftIO $ putStrLn "parse error"
           loop
+    opMeta BatchS = do
+      s <- getLineWithPrompt "reading solution string > "
+      modify (gameStepN (stringToCommands s))
+      loop
     opCommand cmd = modify (gameStep cmd) >> loop
     loop = do
       { gm <- get
@@ -129,6 +123,18 @@ play = do
           _       -> quit
       }
 
+    getLineWithPrompt prompt = liftIO $ do
+      hSetBuffering stdin LineBuffering
+      hSetBuffering stdout LineBuffering                      
+      hSetEcho stdin True
+      putStr prompt
+      hFlush stdout
+      s <- getLine
+      hSetBuffering stdin NoBuffering
+      hSetBuffering stdout NoBuffering
+      hSetEcho stdin False
+      return s
+
 hGetCommand :: Handle -> IO (Either Meta Command)
 hGetCommand h =  return . keyToCommand =<< hGetChar h
 
@@ -141,7 +147,8 @@ keyToCommand ' ' = Right (Turn CW)
 keyToCommand 'z' = Right (Turn CCW)
 keyToCommand 'q' = Left Quit
 keyToCommand 'd' = Left Dump
-keyToCommand 'b' = Left Batch
+keyToCommand 'b' = Left BatchH
+keyToCommand 's' = Left BatchS
 keyToCommand _   = Left Nop
 
 
