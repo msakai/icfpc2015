@@ -30,19 +30,19 @@ initGameIO n tg sd = do
   ; case input of { Nothing -> error "not found the seed"; Just inp -> return (initGameStates tg inp !! sd) }
   }
 
-genTag :: ProblemId -> IO Tag
-genTag n = do
+genTag :: ProblemId -> SeedNo -> IO Tag
+genTag n sd = do
   now <- getCurrentTime
   zone <- getCurrentTimeZone
   let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
-  return $ "problem" ++ show n ++ "-" ++ show h ++ "-" ++ show m ++ "-" ++ show s
+  return $ "problem" ++ show n ++ "-" ++ "-seed[" ++ show sd ++ "]-"++ show h ++ "-" ++ show m ++ "-" ++ show s
 
 autoPlay :: ProblemId -> SeedNo -> Player -> IO ()
 autoPlay n sd ani = testPlay n sd (play' 0 ani)
 
 testPlay :: ProblemId -> SeedNo -> Game () -> IO ()
 testPlay n sd player = do
-  tag <- liftIO (genTag n)
+  tag <- liftIO (genTag n sd)
   gms <- initGameIO n tag sd
   gms' <- execStateT player gms
 --  LBS.putStrLn $ encode $ dumpOutputItem gms'
