@@ -13,7 +13,10 @@ import Test.Tasty.TH
 import qualified Test.QuickCheck.Monadic as QM
 
 import Types
+import qualified Board    
+import Command
 import qualified Cell
+import qualified Game
 import qualified PRNG
 import qualified Unit
 import qualified Util
@@ -101,6 +104,28 @@ exampleUnit1o = Unit.Unit{ Unit.members = Set.fromList [Cell.Cell 1 3, Cell.Cell
 
 case_spawnUnit_ExampleUnit1e = Unit.spawn (5,10) exampleUnit1e @?= Unit.Unit{ Unit.members = Set.fromList [Cell.Cell 1 0, Cell.Cell 2 0, Cell.Cell 2 1], Unit.pivot = Cell.Cell 1 0 }
 case_spawnUnit_ExampleUnit1o = Unit.spawn (5,10) exampleUnit1o @?= Unit.Unit{ Unit.members = Set.fromList [Cell.Cell 1 0, Cell.Cell 2 0, Cell.Cell 2 1], Unit.pivot = Cell.Cell 1 0 }
+
+
+case_gameStep_status_1 = Game.gsStatus (Game.gameStep (Move SW) exampleGameState) @?= Game.Finished
+
+case_gameStep_status_2 = Game.gsStatus (Game.gameStep (Turn CW) exampleGameState) @?= Game.Error
+
+exampleGameState
+  = Game.GameState
+  { Game.gsProblemId = 0
+  , Game.gsSeed      = 0
+  , Game.gsTag       = ""
+  , Game.gsUnits     = []
+  , Game.gsBoard     = Board.Board{ Board.cols = 2, Board.rows = 2, Board.fulls = Set.fromList [Cell.Cell 1 0, Cell.Cell 0 1, Cell.Cell 1 1] }
+  , Game.gsCurUnit   = Unit.Unit{ Unit.members = Set.singleton (Cell.Cell 0 0), Unit.pivot = Cell.Cell 0 0 }
+  , Game.gsSource    = []
+  , Game.gsLocked    = False
+  , Game.gsStatus    = Game.Running
+  , Game.gsCommands  = []
+  , Game.gsTrace     = Set.empty
+  , Game.gsLs        = 0
+  , Game.gsScore     = 0
+  }                        
 
 main :: IO ()
 main = $(defaultMainGenerator)
