@@ -10,6 +10,8 @@ import Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import Data.IORef
 import Data.Maybe (isJust, isNothing, maybe, fromJust)
+import Data.Time.Clock
+import Data.Time.LocalTime
 import System.IO
 import Text.PrettyPrint.Boxes (printBox)
 
@@ -28,12 +30,20 @@ initGameIO n tg = do
   ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
   }
 
+genTag :: ProblemId -> IO Tag
+genTag n = do
+  now <- getCurrentTime
+  zone <- getCurrentTimeZone
+  let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
+  return $ "problem" ++ show n ++ "-" ++ show h ++ "-" ++ show m ++ "-" ++ show s
+
 autoPlay :: ProblemId -> Player -> IO ()
-autoPlay n ani = testPlay n (play' 100000 ani)
+autoPlay n ani = testPlay n (play' 0 ani)
 
 testPlay :: ProblemId -> Game () -> IO ()
 testPlay n player = do
-  gms <- initGameIO n "test-tag"
+  tag <- liftIO (genTag n)
+  gms <- initGameIO n tag
   gms' <- execStateT player (head gms)
   LBS.putStrLn $ encode $ dumpOutputItem gms'
   return ()
