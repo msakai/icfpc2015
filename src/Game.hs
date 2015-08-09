@@ -129,9 +129,10 @@ gameStepN cmds old = foldl' (flip gameStep) old cmds
 
 gameStep :: Command -> GameState -> GameState
 gameStep cmd old = old { gsBoard     = newboard
-                       , gsCurUnit   = if lockedp then if fini || nospace then oldcur 
-                                                       else fleshcur
-                                       else newcur
+                       , gsCurUnit   = case newstatus of
+                           Game.Error    -> oldcur
+                           Game.Finished -> oldcur
+                           _             -> if lockedp then fleshcur else newcur
                        , gsSource    = if lockedp then tail oldsource else oldsource
                        , gsLocked    = lockedp
                        , gsStatus    = newstatus
@@ -144,7 +145,7 @@ gameStep cmd old = old { gsBoard     = newboard
   where
     nospace   = not (valid newboard fleshcur)
     fini      = null oldsource
-    fleshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
+    fleshcur  = if null oldsource then error (show newstatus) else spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
     oldtrace  = gsTrace old
     oldcur    = gsCurUnit old
