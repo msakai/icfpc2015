@@ -16,6 +16,9 @@ data Unit = Unit { members :: [Cell], pivot :: Cell } deriving (Show, Ord, Eq, G
 instance FromJSON Unit
 instance ToJSON Unit
 
+size :: Unit -> Pt
+size = length . members
+
 spawn :: (Int,Int) -> Unit -> Unit
 spawn (w,_) = center w . moveToTop
 

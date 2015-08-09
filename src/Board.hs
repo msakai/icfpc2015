@@ -1,5 +1,6 @@
 module Board where
 
+import Control.Arrow ((&&&))
 import Data.Ix (inRange,range)
 import Data.List (foldl')
 import Data.Set (Set(..))
@@ -36,8 +37,10 @@ findFullRows b = filter fullRow [0 .. h-1]
     fs = fulls b
     fullRow r = Set.size (Set.filter ((r==) . y) fs) == w
     
-clearFullRows :: Board -> Board
-clearFullRows b = foldl' clearRow b (findFullRows b)
+clearFullRows :: Board -> (Int, Board)
+clearFullRows b = (length &&& foldl' clearRow b) cleared
+    where
+      cleared = findFullRows b
 
 clearRow :: Board -> Number -> Board
 clearRow b r = case Set.split (Cell { x = 0, y = r }) fs of

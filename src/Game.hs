@@ -86,6 +86,9 @@ data GameState = GameState
   , gsStatus    :: GameStatus
   , gsCommands  :: Commands
   , gsTrace     :: Set.Set Unit
+  --
+  , gsLs        :: Pt
+  , gsScore     :: Pt
   }
 
 defaultGameState :: String -> Input -> GameState
@@ -103,6 +106,9 @@ defaultGameState tg input = GameState
   , gsStatus    = Running
   , gsCommands  = []
   , gsTrace     = Set.empty
+  --
+  , gsLs        = 0
+  , gsScore     = 0
   }
 
 initGameStates :: String -> Input -> [GameState]
@@ -143,8 +149,8 @@ gameStep cmd old = old { gsBoard     = newboard
     oldcur    = gsCurUnit old
     newcur    = issue cmd oldcur
     oldboard  = gsBoard old
-    newboard  = if not lockedp then oldboard 
-                else clearFullRows (lockUnit oldboard oldcur)
+    newboard  = if not lockedp then oldboard else newb
+    (ls,newb) = clearFullRows (lockUnit oldboard oldcur)
     lockedp   = not (valid oldboard newcur)
 
 issue :: Command -> Unit -> Unit
