@@ -17,4 +17,4 @@ vanishRow1 = concat $
     xs = replicate 6 (Move W) ++ [Move SW] ++ concat (replicate 6 [Move SW, Move SE]) ++ [Move SW]
 
 player :: Player
-player = cycle vanishRow1
+player = replayPlayer $ cycle vanishRow1
