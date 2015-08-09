@@ -41,7 +41,7 @@ instance ToJSON Input
 data OutputItem = OutputItem { problemId :: Number
                              , seed :: Number
                              , tag :: String
-                             , solution :: Commands
+                             , solution :: String
                              }
                 deriving (Show, Eq, Generic)
 
@@ -164,6 +164,6 @@ dumpOutputItem gm = OutputItem
   { problemId = gsProblemId gm
   , seed      = gsSeed gm
   , tag       = gsTag gm
-  , solution  = reverse (gsCommands gm)
+  , solution  = head $ commandsToString $ reverse (gsCommands gm)
   }
 
