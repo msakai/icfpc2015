@@ -35,7 +35,7 @@ genTag n sd = do
   now <- getCurrentTime
   zone <- getCurrentTimeZone
   let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
-  return $ "problem" ++ show n ++ "-seed[" ++ show sd ++ "]-"++ show h ++ "-" ++ show m ++ "-" ++ show s
+  return $ "problem" ++ show n ++ "-seed" ++ show sd ++ "-"++ show h ++ "-" ++ show m ++ "-" ++ show s
 
 burst :: ProblemId -> Int -> IO Player -> IO ()
 burst pid cyc ani = do
@@ -51,11 +51,7 @@ testPlay n sd player = do
   tag <- liftIO (genTag n sd)
   gms <- initGameIO n tag sd
   gms' <- execStateT player gms
---  LBS.putStrLn $ encode $ dumpOutputItem gms'
-  let filename = "outputs/problem"++show n++
-                 "-seed"++show (gsSeed gms')++
-                 "-"++show (gsScore gms')++"pt-"++
-                 tag++".json"
+  let filename = "outputs/"++show (gsScore gms')++"pt-"++tag++".json"
   LBS.writeFile filename $ encode [ toJSON (dumpOutputItem gms') ]
   return ()
 
