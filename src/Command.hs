@@ -12,6 +12,8 @@ import Data.Char (toLower, toUpper)
 import qualified Data.Map as M hiding (map)
 import Data.Maybe (isJust)
 import Data.Tuple (swap)
+import Data.List (sortBy,group,(\\))
+import Data.Ord (comparing)
 import GHC.Generics
 
 import Types
@@ -67,11 +69,25 @@ commandsToString' :: Commands -> [String]
 commandsToString' = map concat . cp . cmdsToStrings
 
 phrases :: [String]
-phrases = ["Ei!"
-          ,"Ia! Ia!"
-          ,"R'lyeh"
-          ,"Yuggoth"
-          ]
+phrases = (\\ ["Ia!"])
+        $ map head
+        $ group 
+        $ sortBy (flip (comparing length))
+        $ (["Ei!"
+           ,"Ia! Ia!"
+           ,"R'lyeh"
+           ,"Yuggoth"
+           ,"Cthulhu fhtagn!"
+           ] ++ extra51 : words extra51 ++ extra23 : words extra23
+           ++ moons
+          )
+
+extra51,extra23 :: String
+extra51 = "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
+extra23 = "Ia! Ia! Cthulhu fhtagn!"
+
+moons :: [String]
+moons =  ["Nithon","Thog","Thok"]
 
 phraseDict :: [(Commands,String)]
 phraseDict = map (stringToCommands &&& Prelude.id) phrases
