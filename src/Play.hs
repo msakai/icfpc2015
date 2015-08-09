@@ -155,6 +155,17 @@ keyToCommand 'b' = Left BatchH
 keyToCommand 's' = Left BatchS
 keyToCommand _   = Left Nop
 
+commandsToKeys :: [Command] -> String
+commandsToKeys = fmap commandToKey
+
+commandToKey :: Command -> Char
+commandToKey (Move W)   = 'h'
+commandToKey (Move E)   = 'l'
+commandToKey (Move SW)  = 'j'
+commandToKey (Move SE)  = 'k'
+commandToKey (Turn CW)  = ' '
+commandToKey (Turn CCW) = 'z'
+    
 
 data PlayerM a
   = PReturn a
