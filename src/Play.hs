@@ -24,7 +24,10 @@ initGameIO n tg = do
   ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
   }
 
-testPlay :: Int -> Game () -> IO ()
+autoPlay :: ProblemId -> IOPlayer -> IO ()
+autoPlay n ani = testPlay n (play' 100000 ani)
+
+testPlay :: ProblemId -> Game () -> IO ()
 testPlay n player = do
   gms <- initGameIO n "test-tag"
   runStateT player (head gms)
@@ -32,8 +35,8 @@ testPlay n player = do
 
 type IOPlayer = GameState -> IO Command
 
-play' :: IOPlayer -> Integer -> Game ()
-play' ani wait = loop
+play' :: WaituS -> IOPlayer -> Game ()
+play' wait ani = loop
   where
     loop = do
       gm <- get
