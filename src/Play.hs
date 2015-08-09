@@ -4,6 +4,7 @@ import Control.Arrow ((&&&))
 import Control.Concurrent.Thread.Delay (delay)
 import Control.Monad.IO.Class
 import Control.Monad.Trans.State
+import Data.IORef
 import Data.Maybe (isJust, isNothing, maybe, fromJust)
 import System.IO
 import Text.PrettyPrint.Boxes (printBox)
@@ -29,24 +30,31 @@ testPlay n player = do
   runStateT player (head gms)
   return ()
 
-play' :: (GameState -> IO Commands) -> Integer -> Game ()
-play' ani wait = do
-  { gm <- get
-  ; liftIO $ gameDisplay gm
-  ; ccs <- liftIO (ani gm)
-  ; loop ccs
-  }
-  where
-    quit = return ()
-    loop (c:cs) = do
-      { modify (gameStep c)
-      ; gm <- get
-      ; liftIO (gameDisplay gm >> delay wait)
-      ; case gsStatus gm of
-          Running -> loop cs
-          _       -> quit
-      }
+type IOPlayer = GameState -> IO Command
 
+play' :: IOPlayer -> Integer -> Game ()
+play' ani wait = loop
+  where
+    loop = do
+      gm <- get
+      liftIO (gameDisplay gm >> delay wait)
+      case gsStatus gm of
+        Running -> do
+          c <- liftIO $ ani gm
+          put (gameStep c gm)
+          loop
+        _       -> quit
+    dump = do
+      { gm <- get
+      ; let cmds = reverse $ gsCommands gm
+      ; liftIO $ print $ cmds
+      ; liftIO $ print $ head $ commandsToString cmds
+      }
+    quit = do
+      { liftIO $ putStrLn "QUIT"
+      ; dump
+      }
+                   
 play :: Game ()
 play = do 
   { liftIO (hSetBuffering stdin NoBuffering)
@@ -95,3 +103,11 @@ keyToCommand 'z' = Right (Turn CCW)
 keyToCommand 'q' = Left Quit
 keyToCommand 'd' = Left Dump
 keyToCommand _   = Left Nop
+
+mkReplayPlayer :: [Command] -> IO IOPlayer
+mkReplayPlayer cmds = do
+  ref <- newIORef cmds
+  return $ \gs -> do
+    (c:cs) <- readIORef ref
+    writeIORef ref cs
+    return c
