@@ -40,7 +40,7 @@ play' wait ani = loop
   where
     loop = do
       gm <- get
-      liftIO (gameDisplay gm >> delay wait)
+      liftIO (gameDisplay' gm >> delay wait)
       case gsStatus gm of
         Running -> do
           c <- liftIO $ ani gm
@@ -82,7 +82,7 @@ play = do
     opCommand cmd = modify (gameStep cmd) >> loop
     loop = do
       { gm <- get
-      ; liftIO (gameDisplay gm >> hFlush stdout)
+      ; liftIO (gameDisplay' gm >> hFlush stdout)
       ; liftIO (putStrLn (show (gsCurUnit gm))) -- for debug
       ; liftIO (putStrLn ("lockedp : "++show (gsLocked gm))) -- for debug
       ; case gsStatus gm of

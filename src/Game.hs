@@ -24,6 +24,7 @@ import Display
 import Unit
 import Command
 import PRNG
+import Score
 
 data Input = Input { id :: Number
                    , units :: [Unit]
@@ -139,6 +140,8 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsCommands  = cmd : gsCommands old
                        , gsTrace     = if lockedp then Set.singleton fleshcur
                                        else Set.insert newcur oldtrace
+                       , gsLs        = ls
+                       , gsScore     = newscore
                        }
   where
     nospace   = not (valid newboard fleshcur)
@@ -152,6 +155,10 @@ gameStep cmd old = old { gsBoard     = newboard
     newboard  = if not lockedp then oldboard else newb
     (ls,newb) = clearFullRows (lockUnit oldboard oldcur)
     lockedp   = not (valid oldboard newcur)
+    oldscore  = gsScore old
+    old_ls    = gsLs old
+    unitsize  = if lockedp then size oldcur else 0
+    newscore  = oldscore + move_score unitsize ls old_ls
 
 issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir
@@ -164,6 +171,9 @@ game = undefined
 
 gameDisplay :: GameState -> IO ()
 gameDisplay gm = PPr.printBox $ dispBoard (gsBoard gm) [gsCurUnit gm]
+
+gameDisplay' :: GameState -> IO ()
+gameDisplay' gm = gameDisplay gm >> putStrLn ("Score : " ++ show (gsScore gm))
 
 dumpOutputItem :: GameState -> OutputItem
 dumpOutputItem gm = OutputItem
