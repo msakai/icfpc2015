@@ -48,7 +48,7 @@ testPlay n player = do
 --  LBS.putStrLn $ encode $ dumpOutputItem gms'
   let filename = "outputs/problem"++show n++"-score"++show (gsScore gms')++"-"++tag++".json"
   handle <- openFile filename WriteMode
-  hPutStr handle $ LBS.unpack $ encode $ dumpOutputItem gms'
+  hPutStr handle $ "[" ++ (LBS.unpack $ encode (dumpOutputItem gms')) ++ "]"
   hClose handle
   return ()
 
