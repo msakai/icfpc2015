@@ -145,7 +145,7 @@ gameStep cmd old = old { gsBoard     = newboard
   where
     nospace   = not (valid newboard freshcur)
     fini      = null oldsource
-    freshcur  = if null oldsource then error (show newstatus) else spawn (cols oldboard, rows oldboard) (head oldsource)
+    freshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
     oldtrace  = gsTrace old
     oldcur    = gsCurUnit old
@@ -161,7 +161,7 @@ gameStep cmd old = old { gsBoard     = newboard
       Game.Error -> 0
       _          -> oldscore + move_score unitsize ls old_ls
     newstatus = if Set.member newcur oldtrace then Game.Error
-                else if (lockedp && fini) || nospace then Game.Finished
+                else if lockedp && (fini || nospace) then Game.Finished
                      else Game.Running
 
 issue :: Command -> Unit -> Unit
