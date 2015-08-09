@@ -24,10 +24,10 @@ import Types
 
 data Meta = Nop | Dump | Quit | BatchH | BatchS deriving (Show, Eq)
 
-initGameIO :: ProblemId -> Tag -> IO [GameState]
-initGameIO n tg = do
+initGameIO :: ProblemId -> Tag -> SeedNo -> IO GameState
+initGameIO n tg sd = do
   { input <- readProblem ("problems/problem_"++show n++".json")
-  ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
+  ; case input of { Nothing -> error "not found the seed"; Just inp -> return (initGameStates tg inp !! sd) }
   }
 
 genTag :: ProblemId -> IO Tag
@@ -37,16 +37,16 @@ genTag n = do
   let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
   return $ "problem" ++ show n ++ "-" ++ show h ++ "-" ++ show m ++ "-" ++ show s
 
-autoPlay :: ProblemId -> Player -> IO ()
-autoPlay n ani = testPlay n (play' 0 ani)
+autoPlay :: ProblemId -> SeedNo -> Player -> IO ()
+autoPlay n sd ani = testPlay n sd (play' 0 ani)
 
-testPlay :: ProblemId -> Game () -> IO ()
-testPlay n player = do
+testPlay :: ProblemId -> SeedNo -> Game () -> IO ()
+testPlay n sd player = do
   tag <- liftIO (genTag n)
-  gms <- initGameIO n tag
-  gms' <- execStateT player (head gms)
+  gms <- initGameIO n tag sd
+  gms' <- execStateT player gms
 --  LBS.putStrLn $ encode $ dumpOutputItem gms'
-  let filename = "outputs/"++show (gsScore gms')++"pt-"++tag++".json"
+  let filename = "outputs/problem"++show n++"seed"++show (gsSeed gms')++show (gsScore gms')++"pt-"++tag++".json"
   handle <- openFile filename WriteMode
   hPutStr handle $ LBS.unpack $ encode [ toJSON (dumpOutputItem gms') ]
   hClose handle

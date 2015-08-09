@@ -11,6 +11,7 @@ type Pt = Int
 type ProblemId = Int
 type WaituS = Integer
 type Tag = String
+type SeedNo = Int
 
 data MDir = E | W | SE | SW deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
 data CDir = CW | CCW deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
