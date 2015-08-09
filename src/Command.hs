@@ -61,6 +61,12 @@ commandsToString = combi . map commandToChar
       combi [] = [[]]
       combi (x:xs) = [ c:s | c <- x, s <- combi xs ]
 
-phraseDict :: [(Commands, String)]
-phraseDict = [([Move E,Move SW, Move W],"Ei!")
-             ]
+phrases :: [String]
+phrases = ["Ei!"
+          ,"Ia! Ia!"
+          ,"R'lyeh"
+          ,"Yuggoth"
+          ]
+
+phraseDict :: [(Commands,String)]
+phraseDict = map (stringToCommands &&& Prelude.id) phrases
