@@ -2,15 +2,12 @@ module Util
        ( readProblem
        ) where
 
-import Control.Monad (forM_)
-import Data.Aeson hiding (decode')
-import Data.ByteString.Lazy.Char8 (pack)
+import Control.Monad (forM_, liftM)
+import Data.Aeson
+import qualified Data.ByteString.Lazy.Char8 as LBS
 import System.Directory (createDirectoryIfMissing)
-import Text.PrettyPrint.Boxes
 
 import Game
-import Display
-import Unit
 
 convertProblemJsonToDat :: IO ()
 convertProblemJsonToDat = do
@@ -22,11 +19,8 @@ convert ns = forM_ ns $ \n -> do
   let (infile, outfile) = ("problems/problem_" ++ show n ++ ".json",
                            "problems/decoded/problem_" ++ show n ++ ".dat"
                           )
-  cs <- readFile infile
-  writeFile outfile $ show $ decode' cs
-
-decode' :: String -> Maybe Input
-decode' = decode . pack
+  cs <- LBS.readFile infile
+  writeFile outfile $ show $ (decode cs :: Maybe Input)
 
 readProblem :: FilePath -> IO (Maybe Input)
-readProblem fs = return . decode' =<< readFile fs
+readProblem fs = liftM decode $ LBS.readFile fs
