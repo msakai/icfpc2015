@@ -16,7 +16,7 @@ import GHC.Generics
 
 import Types
 
-data Cell = Cell { x :: Number , y :: Number } deriving (Show, Eq, Generic)
+data Cell = Cell { x :: {-# UNPACK #-} !Number , y :: {-# UNPACK #-} !Number } deriving (Show, Eq, Generic)
 
 instance FromJSON Cell
 instance ToJSON Cell
