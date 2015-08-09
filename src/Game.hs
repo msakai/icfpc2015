@@ -134,9 +134,7 @@ gameStep cmd old = old { gsBoard     = newboard
                                        else newcur
                        , gsSource    = if lockedp then tail oldsource else oldsource
                        , gsLocked    = lockedp
-                       , gsStatus    = if Set.member newcur oldtrace then Game.Error
-                                       else if (lockedp && fini) || nospace then Game.Finished
-                                       else Game.Running
+                       , gsStatus    = newstatus
                        , gsCommands  = cmd : gsCommands old
                        , gsTrace     = if lockedp then Set.singleton fleshcur
                                        else Set.insert newcur oldtrace
@@ -158,7 +156,12 @@ gameStep cmd old = old { gsBoard     = newboard
     oldscore  = gsScore old
     old_ls    = gsLs old
     unitsize  = if lockedp then size oldcur else 0
-    newscore  = oldscore + move_score unitsize ls old_ls
+    newscore  = case newstatus of
+      Game.Error -> 0
+      _          -> oldscore + move_score unitsize ls old_ls
+    newstatus = if Set.member newcur oldtrace then Game.Error
+                else if (lockedp && fini) || nospace then Game.Finished
+                     else Game.Running
 
 issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir
