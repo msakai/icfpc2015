@@ -82,3 +82,11 @@ executable play_cui
       base
     , icfpc2015
   Default-Language: Haskell2010
+
+executable burst
+  HS-Source-Dirs: burst
+  Main-is: Main.hs
+  Build-Depends:
+      base
+    , icfpc2015
+  Default-Language: Haskell2010
