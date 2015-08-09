@@ -55,11 +55,13 @@ commandToChar :: Command -> [Char]
 commandToChar cmd = maybe [] id $ M.lookup cmd mapCommandToChars
 
 commandsToString :: Commands -> [String]
-commandsToString = combi . map commandToChar
-    where
-      combi :: [String] -> [String]
-      combi [] = [[]]
-      combi (x:xs) = [ c:s | c <- x, s <- combi xs ]
+commandsToString = commandsToString'
+
+-- commandsToString = combi . map commandToChar
+--     where
+--       combi :: [String] -> [String]
+--       combi [] = [[]]
+--       combi (x:xs) = [ c:s | c <- x, s <- combi xs ]
 
 commandsToString' :: Commands -> [String]
 commandsToString' = map concat . cp . cmdsToStrings
