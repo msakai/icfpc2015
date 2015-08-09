@@ -21,6 +21,7 @@ library
                        , Types
                        , Unit
                        , PRNG
+                       , Score
                        , Util
                        , Display
                        , Play

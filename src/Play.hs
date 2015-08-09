@@ -1,5 +1,6 @@
 module Play where
 
+import Control.Applicative
 import Control.Arrow ((&&&))
 import Control.Concurrent.Thread.Delay (delay)
 import Control.Monad
