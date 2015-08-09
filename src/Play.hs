@@ -5,6 +5,8 @@ import Control.Concurrent.Thread.Delay (delay)
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.State
+import Data.Aeson
+import qualified Data.ByteString.Lazy.Char8 as LBS
 import Data.IORef
 import Data.Maybe (isJust, isNothing, maybe, fromJust)
 import System.IO
@@ -31,7 +33,8 @@ autoPlay n ani = testPlay n (play' 100000 ani)
 testPlay :: ProblemId -> Game () -> IO ()
 testPlay n player = do
   gms <- initGameIO n "test-tag"
-  runStateT player (head gms)
+  gms' <- execStateT player (head gms)
+  LBS.putStrLn $ encode $ dumpOutputItem gms'
   return ()
 
 play' :: WaituS -> Player -> Game ()
