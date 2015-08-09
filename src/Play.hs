@@ -37,8 +37,11 @@ genTag n sd = do
   let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
   return $ "problem" ++ show n ++ "-seed[" ++ show sd ++ "]-"++ show h ++ "-" ++ show m ++ "-" ++ show s
 
-burst :: ProblemId -> Int -> Int -> Player -> IO ()
-burst pid sdN cyc ani = mapM_ (\(n,sd) -> autoPlay pid sd ani) [(n, sd) | n <- [1..cyc], sd <- [0..sdN-1]]
+burst :: ProblemId -> Int -> Player -> IO ()
+burst pid cyc ani = do
+  Just inp <- readProblem ("problems/problem_"++show pid++".json")
+  let sdN = length $ sourceSeeds inp
+  mapM_ (\(n,sd) -> autoPlay pid sd ani) [(n, sd) | n <- [1..cyc], sd <- [0..sdN-1]]
 
 autoPlay :: ProblemId -> SeedNo -> Player -> IO ()
 autoPlay n sd ani = testPlay n sd (play' 0 ani)
