@@ -76,10 +76,14 @@ play' wait = loop
       }
 
 play :: Game ()
-play = do 
+play = playStartWith []
+           
+playStartWith :: [Command] -> Game ()
+playStartWith cmds = do
   { liftIO (hSetBuffering stdin NoBuffering)
   ; liftIO (hSetBuffering stdout NoBuffering)
   ; liftIO (hSetEcho stdin False)
+  ; modify (gameStepN cmds)
   ; loop
   }
   where
@@ -151,6 +155,17 @@ keyToCommand 'b' = Left BatchH
 keyToCommand 's' = Left BatchS
 keyToCommand _   = Left Nop
 
+commandsToKeys :: [Command] -> String
+commandsToKeys = fmap commandToKey
+
+commandToKey :: Command -> Char
+commandToKey (Move W)   = 'h'
+commandToKey (Move E)   = 'l'
+commandToKey (Move SW)  = 'j'
+commandToKey (Move SE)  = 'k'
+commandToKey (Turn CW)  = ' '
+commandToKey (Turn CCW) = 'z'
+    
 
 data PlayerM a
   = PReturn a
