@@ -2,6 +2,7 @@ module Play where
 
 import Control.Arrow ((&&&))
 import Control.Concurrent.Thread.Delay (delay)
+import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.State
 import Data.IORef
@@ -24,7 +25,7 @@ initGameIO n tg = do
   ; case input of { Nothing -> return []; Just inp -> return (initGameStates tg inp) }
   }
 
-autoPlay :: ProblemId -> IOPlayer -> IO ()
+autoPlay :: ProblemId -> Player -> IO ()
 autoPlay n ani = testPlay n (play' 100000 ani)
 
 testPlay :: ProblemId -> Game () -> IO ()
@@ -33,19 +34,17 @@ testPlay n player = do
   runStateT player (head gms)
   return ()
 
-type IOPlayer = GameState -> IO Command
-
-play' :: WaituS -> IOPlayer -> Game ()
-play' wait ani = loop
+play' :: WaituS -> Player -> Game ()
+play' wait = loop
   where
-    loop = do
+    loop ani = do
       gm <- get
       liftIO (gameDisplay' gm >> delay wait)
       case gsStatus gm of
         Running -> do
-          c <- liftIO $ ani gm
+          let (c, ani') = runPlayer gm ani
           put (gameStep c gm)
-          loop
+          loop ani'
         _       -> quit
     dump = do
       { gm <- get
@@ -57,7 +56,7 @@ play' wait ani = loop
       { liftIO $ putStrLn "QUIT"
       ; dump
       }
-                   
+
 play :: Game ()
 play = do 
   { liftIO (hSetBuffering stdin NoBuffering)
@@ -107,10 +106,37 @@ keyToCommand 'q' = Left Quit
 keyToCommand 'd' = Left Dump
 keyToCommand _   = Left Nop
 
-mkReplayPlayer :: [Command] -> IO IOPlayer
-mkReplayPlayer cmds = do
-  ref <- newIORef cmds
-  return $ \gs -> do
-    (c:cs) <- readIORef ref
-    writeIORef ref cs
-    return c
+
+data PlayerM a
+  = PReturn a
+  | PCommand Command (PlayerM a)
+  | PGetGameState (GameState -> PlayerM a)
+
+instance Functor PlayerM where
+  fmap = liftM
+
+instance Applicative PlayerM where
+  pure  = return
+  (<*>) = ap
+
+instance Monad PlayerM where
+  return = PReturn
+  PReturn x >>= f = f x
+  PCommand o cont >>= f = PCommand o (cont >>= f)
+  PGetGameState cont >>= f = PGetGameState (\i -> cont i >>= f)
+
+type Player = PlayerM ()
+
+getGameState :: PlayerM GameState
+getGameState = PGetGameState return
+
+command :: Command -> Player
+command x = PCommand x (return ())
+
+runPlayer :: GameState -> Player -> (Command, Player)
+runPlayer gs (PReturn _) = error "stepPlayer: should not happen"
+runPlayer gs (PCommand o cont) = (o, cont)
+runPlayer gs (PGetGameState cont) = runPlayer gs (cont gs)
+
+replayPlayer :: [Command] -> Player
+replayPlayer = mapM_ command                

@@ -7,10 +7,10 @@ import Command
 import Game (GameState)
 import Play
 
-newPlayer :: IO IOPlayer
+newPlayer :: IO Player
 newPlayer = do
   g <- newStdGen
-  mkReplayPlayer $ map convert (randoms g)
+  return $ replayPlayer $ map convert (randoms g)
   where
     convert :: Int -> Command
     convert n = if odd n then Move SE else Move SW
