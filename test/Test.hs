@@ -117,15 +117,17 @@ exampleGameState
   , Game.gsTag       = ""
   , Game.gsUnits     = []
   , Game.gsBoard     = Board.Board{ Board.cols = 2, Board.rows = 2, Board.fulls = Set.fromList [Cell.Cell 1 0, Cell.Cell 0 1, Cell.Cell 1 1] }
-  , Game.gsCurUnit   = Unit.Unit{ Unit.members = Set.singleton (Cell.Cell 0 0), Unit.pivot = Cell.Cell 0 0 }
+  , Game.gsCurUnit   = u
   , Game.gsSource    = []
   , Game.gsLocked    = False
   , Game.gsStatus    = Game.Running
   , Game.gsCommands  = []
-  , Game.gsTrace     = Set.empty
+  , Game.gsTrace     = Set.singleton u
   , Game.gsLs        = 0
   , Game.gsScore     = 0
-  }                        
+  }
+  where
+    u = Unit.Unit{ Unit.members = Set.singleton (Cell.Cell 0 0), Unit.pivot = Cell.Cell 0 0 }
 
 main :: IO ()
 main = $(defaultMainGenerator)
