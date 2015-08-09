@@ -76,10 +76,14 @@ play' wait = loop
       }
 
 play :: Game ()
-play = do 
+play = playStartWith []
+           
+playStartWith :: [Command] -> Game ()
+playStartWith cmds = do
   { liftIO (hSetBuffering stdin NoBuffering)
   ; liftIO (hSetBuffering stdout NoBuffering)
   ; liftIO (hSetEcho stdin False)
+  ; modify (gameStepN cmds)
   ; loop
   }
   where
