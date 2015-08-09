@@ -61,6 +61,9 @@ commandsToString = combi . map commandToChar
       combi [] = [[]]
       combi (x:xs) = [ c:s | c <- x, s <- combi xs ]
 
+commandsToString' :: Commands -> [String]
+commandsToString' = map concat . cp . cmdsToStrings
+
 phrases :: [String]
 phrases = ["Ei!"
           ,"Ia! Ia!"
@@ -70,3 +73,28 @@ phrases = ["Ei!"
 
 phraseDict :: [(Commands,String)]
 phraseDict = map (stringToCommands &&& Prelude.id) phrases
+
+
+cmdsToStrings :: Commands -> [[String]]
+cmdsToStrings [] = []
+cmdsToStrings ccs@(c:cs) = case checkPrefix ccs of
+  [] -> cmdToString c : cmdsToStrings cs
+  xs -> case unzip xs of
+     (ys,zs) -> [head ys] : cmdsToStrings (head zs)
+
+checkPrefix :: Commands -> [(String, Commands)]
+checkPrefix cs = [ (s,drop plen cs) | (p,s) <- phraseDict
+                                    , let pre = zipWith (==) cs p
+                                    , and pre
+                                    , let plen = length pre
+                                    , length p == plen
+                                    ]
+
+cmdToString :: Command -> [String]
+cmdToString = map (:[]) . commandToChar
+
+cp :: [[a]] -> [[a]]
+cp [] = [[]]
+cp (xs:xss) = [x:ys | x <- xs, ys <- yss]
+              where
+                yss = cp xss
