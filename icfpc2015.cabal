@@ -26,6 +26,7 @@ library
                        , Display
                        , Play
                        , Tactics.RandomZigZag
+                       , Tactics.RandomWalk
                        , Tactics.SimpleFor1
   -- other-modules:       
   -- other-extensions:    

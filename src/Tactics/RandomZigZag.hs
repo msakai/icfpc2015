@@ -13,4 +13,10 @@ newPlayer = do
   return $ replayPlayer $ map convert (randoms g)
   where
     convert :: Int -> Command
-    convert n = if odd n then Move SE else Move SW
+    convert n = case mod n 6 of
+      0 -> Move E
+      1 -> Move W
+      2 -> Move SE
+      3 -> Move SW
+      4 -> Turn CW
+      _ -> Turn CCW
