@@ -132,20 +132,20 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsCurUnit   = case newstatus of
                            Game.Error    -> oldcur
                            Game.Finished -> oldcur
-                           _             -> if lockedp then fleshcur else newcur
+                           _             -> if lockedp then freshcur else newcur
                        , gsSource    = if lockedp then tail oldsource else oldsource
                        , gsLocked    = lockedp
                        , gsStatus    = newstatus
                        , gsCommands  = cmd : gsCommands old
-                       , gsTrace     = if lockedp then Set.singleton fleshcur
+                       , gsTrace     = if lockedp then Set.singleton freshcur
                                        else Set.insert newcur oldtrace
                        , gsLs        = ls
                        , gsScore     = newscore
                        }
   where
-    nospace   = not (valid newboard fleshcur)
+    nospace   = not (valid newboard freshcur)
     fini      = null oldsource
-    fleshcur  = if null oldsource then error (show newstatus) else spawn (cols oldboard, rows oldboard) (head oldsource)
+    freshcur  = if null oldsource then error (show newstatus) else spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
     oldtrace  = gsTrace old
     oldcur    = gsCurUnit old
