@@ -46,7 +46,10 @@ testPlay n sd player = do
   gms <- initGameIO n tag sd
   gms' <- execStateT player gms
 --  LBS.putStrLn $ encode $ dumpOutputItem gms'
-  let filename = "outputs/problem"++show n++"seed"++show (gsSeed gms')++show (gsScore gms')++"pt-"++tag++".json"
+  let filename = "outputs/problem"++show n++
+                 "-seed"++show (gsSeed gms')++
+                 "-"++show (gsScore gms')++"pt-"++
+                 tag++".json"
   handle <- openFile filename WriteMode
   hPutStr handle $ LBS.unpack $ encode [ toJSON (dumpOutputItem gms') ]
   hClose handle
