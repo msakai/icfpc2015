@@ -46,7 +46,7 @@ testPlay n player = do
   gms <- initGameIO n tag
   gms' <- execStateT player (head gms)
 --  LBS.putStrLn $ encode $ dumpOutputItem gms'
-  let filename = "problem"++show n++"-"++tag++"-score"++show (gsScore gms')++".json"
+  let filename = "outputs/problem"++show n++"-score"++show (gsScore gms')++"-"++tag++".json"
   handle <- openFile filename WriteMode
   hPutStr handle $ LBS.unpack $ encode $ dumpOutputItem gms'
   hClose handle
