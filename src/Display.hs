@@ -28,7 +28,7 @@ dispBoard b us = vcat top $ zigzag $ map (hsep 1 left . map disp) ls
     rng = range (cell (0,0), cell (w-1,h-1)) 
     h  = Board.rows b
     w  = Board.cols b
-    cs = foldr Set.union (fulls b) (map (Set.fromList . members) us)
+    cs = Set.unions $ fulls b : map members us
 
 splitsBy :: Number -> [a] -> [[a]]
 splitsBy k = unfoldr phi

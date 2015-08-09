@@ -5,7 +5,6 @@ import Data.Ix (inRange,range)
 import Data.List (foldl')
 import Data.Set (Set(..))
 import qualified Data.Set as Set
-  (notMember,insert,size,filter,split,union,mapMonotonic,fromList,elems)
 
 import Cell
 import Unit
@@ -21,13 +20,13 @@ valid b u
  =    trace ("not batting: "++show notBatting) notBatting
    && trace ("in range:    "++show withinRange) withinRange
    where
-     notBatting  = and (map (flip Set.notMember fs) cs)
-     withinRange = all (inRange (cell (0,0), cell (cols b -1, rows b -1))) cs
+     notBatting  = Set.null $ fs `Set.intersection` cs
+     withinRange = all (inRange (cell (0,0), cell (cols b -1, rows b -1))) (Set.toList cs)
      fs = fulls b
      cs = members u
 
 lockUnit :: Board -> Unit -> Board
-lockUnit b u = b { fulls = foldr Set.insert (fulls b) (members u) }
+lockUnit b u = b { fulls = fulls b `Set.union` members u }
 
 findFullRows :: Board -> [Number]
 findFullRows b = filter fullRow [0 .. h-1]
