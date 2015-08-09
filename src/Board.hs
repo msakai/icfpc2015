@@ -17,8 +17,7 @@ data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell } derivin
 
 valid :: Board -> Unit -> Bool
 valid b u 
- =    trace ("not batting: "++show notBatting) notBatting
-   && trace ("in range:    "++show withinRange) withinRange
+ = notBatting && withinRange
    where
      notBatting  = Set.null $ fs `Set.intersection` cs
      withinRange = all (inRange (cell (0,0), cell (cols b -1, rows b -1))) (Set.toList cs)
