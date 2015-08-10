@@ -9,13 +9,13 @@ import qualified Tactics.Reynolds as Reynolds
 main = do
   args <- getArgs
   case args of
-    [problemid, cycle, playerName] -> do
+    (problemid:cycle:playerName:xs) -> do
       let newPlayer =
             case map toLower playerName of
               "randomwalk" -> RandomWalk.newPlayer
               "randomwalk2" -> RandomWalk2.newPlayer
               "randomzigzag" -> RandomZigZag.newPlayer
-              "reynolds" -> Reynolds.newPlayer 300
+              "reynolds" -> Reynolds.newPlayer (read (head xs))
               _ -> error "unknown player name"
       burst (read problemid) (read cycle) newPlayer
     _ -> error "USAGE: burst problemId cycle player"
