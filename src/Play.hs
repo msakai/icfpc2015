@@ -38,14 +38,51 @@ genTag n sd = do
   return $ "problem" ++ show n ++ "-seed" ++ show sd ++ "-"++ show h ++ "-" ++ show m ++ "-" ++ show s
 
 burst :: ProblemId -> Int -> IO Player -> IO ()
-burst pid cyc ani = do
+burst pid cyc newPlayer = do
   Just inp <- readProblem ("problems/problem_"++show pid++".json")
   let sdN = length $ sourceSeeds inp
-  mapM_ (\(n,sd) -> autoPlay pid sd =<< ani) [(n, sd) | n <- [1..cyc], sd <- [0..sdN-1]]
+  forM_ [1..cyc] $ \n -> do
+    forM_ [0..sdN-1] $ \sd -> do
+      player <- newPlayer
+      autoPlay pid sd player
+
+data DisplayMode
+  = DisplayAll
+  | DisplayLocked
+  | DisplayNone
+  deriving (Show, Eq, Ord, Enum, Bounded)
 
 autoPlay :: ProblemId -> SeedNo -> Player -> IO ()
-autoPlay n sd ani = testPlay n sd (play' 0 ani)
+autoPlay n sd player = testPlay n sd $ loop player
+  where
+    displayMode = DisplayNone -- DisplayLocked
+    wait = 0
+    
+    loop player = do
+      gm <- get
+      case displayMode of
+        DisplayAll -> do
+          liftIO $ gameDisplay' gm
+          when (wait > 0) $ liftIO $ delay wait
+        DisplayLocked -> do
+          when (gsStatus gm /= Game.Running || gsLocked gm) $
+            liftIO $ gameDisplay' gm
+          when (wait > 0) $ liftIO $ delay wait
+        DisplayNone -> return ()
+      case gsStatus gm of
+        Running -> do
+          let (c, player') = queryPlayer gm player
+          put (gameStep c gm)
+          loop player'
+        _ -> do
+          liftIO $ putStrLn "QUIT"
+          gm <- get
+          let cmds = reverse $ gsCommands gm
+          liftIO $ print $ gsScore gm
+          liftIO $ print $ cmds
+          liftIO $ print $ head $ commandsToString cmds
 
+-- runGameとかにリネームしたい
 testPlay :: ProblemId -> SeedNo -> Game () -> IO ()
 testPlay n sd player = do
   tag <- liftIO (genTag n sd)
@@ -54,29 +91,6 @@ testPlay n sd player = do
   let filename = "outputs/"++show (gsScore gms')++"pt-"++tag++".json"
   LBS.writeFile filename $ encode [ toJSON (dumpOutputItem gms') ]
   return ()
-
-play' :: WaituS -> Player -> Game ()
-play' wait = loop
-  where
-    loop ani = do
-      gm <- get
-      liftIO (gameDisplay' gm >> delay wait)
-      case gsStatus gm of
-        Running -> do
-          let (c, ani') = runPlayer gm ani
-          put (gameStep c gm)
-          loop ani'
-        _       -> quit
-    dump = do
-      { gm <- get
-      ; let cmds = reverse $ gsCommands gm
-      ; liftIO $ print $ cmds
-      ; liftIO $ print $ head $ commandsToString cmds
-      }
-    quit = do
-      { liftIO $ putStrLn "QUIT"
-      ; dump
-      }
 
 play :: Game ()
 play = playStartWith []
@@ -196,10 +210,10 @@ getGameState = PGetGameState return
 command :: Command -> Player
 command x = PCommand x (return ())
 
-runPlayer :: GameState -> Player -> (Command, Player)
-runPlayer gs (PReturn _) = error "stepPlayer: should not happen"
-runPlayer gs (PCommand o cont) = (o, cont)
-runPlayer gs (PGetGameState cont) = runPlayer gs (cont gs)
+queryPlayer :: GameState -> Player -> (Command, Player)
+queryPlayer gs (PReturn _) = error "stepPlayer: should not happen"
+queryPlayer gs (PCommand o cont) = (o, cont)
+queryPlayer gs (PGetGameState cont) = queryPlayer gs (cont gs)
 
 replayPlayer :: [Command] -> Player
 replayPlayer = mapM_ command                
