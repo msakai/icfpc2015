@@ -10,7 +10,7 @@ import Control.Arrow ((&&&), (***))
 import Data.Aeson
 import Data.Char (toLower, toUpper)
 import qualified Data.Map as M hiding (map)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, catMaybes)
 import Data.Tuple (swap)
 import Data.List (sortBy,group,(\\))
 import Data.Ord (comparing)
@@ -47,14 +47,13 @@ mapCharToCommand = M.fromList $ concatMap (uncurry zip . (id *** repeat) . swap)
 charToCommand :: Char -> Maybe Command
 charToCommand ch = M.lookup ch mapCharToCommand
 
-stringToCommands :: String -> [Command]
+stringToCommands :: String -> Commands
 stringToCommands cs = if all isJust ms
-                      then catMaybe ms
-                      else []
+                      then catMaybes ms
+                      else error ("stringToCommands: " ++ show cs ++ " contains invalid characters")
     where
       ignore ch = notElem ch ['\t', '\n', '\r']
       ms = map (charToCommand . toLower) $ filter ignore cs
-      catMaybe xs = [x | Just x <- xs]
 
 commandToChar :: Command -> [Char]
 commandToChar cmd = maybe [] id $ M.lookup cmd mapCommandToChars
