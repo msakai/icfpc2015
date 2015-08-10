@@ -74,6 +74,7 @@ executable submit
   Build-Depends:
       base
     , bytestring
+    , aeson
     , http-client
     , http-client-tls
     , icfpc2015
@@ -99,6 +100,7 @@ executable highscores
   Main-is: highscores.hs
   Build-Depends:
       base
+    , split
     , directory >=1.2
   Default-Language: Haskell2010
 

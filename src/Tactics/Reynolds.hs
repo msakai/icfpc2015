@@ -66,7 +66,7 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
 
       -- sit down is value
       sitdown = fromIntegral $ (fromInteger highwatermark)^10
-      highwatermark = minimum $ map (toInteger.height) $ Set.toList cs
+      highwatermark = if null cs then (toInteger h-1) else minimum $ map (toInteger.height) $ Set.toList cs
       height (Cell x y) = y
 
       -- ls is good
