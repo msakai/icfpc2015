@@ -58,10 +58,10 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
                          else if spacep c then -1 else 1
             aboveOf c = if outOfBounds hw c
                         then -5
-                        else if spacep c then -1 else 1
+                        else if spacep c then -3 else 1
             belowOf c = if outOfBounds hw c
                         then 5
-                        else if spacep c then -5 else 1
+                        else if spacep c then -5 else 3
 
       -- sit down is value
       sitdown = fromIntegral $ (fromInteger highwatermark)^10
