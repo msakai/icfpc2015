@@ -22,6 +22,7 @@ instance FromJSON Cell
 instance ToJSON Cell
 
 instance Ord Cell where
+  {-# INLINE compare #-}
   compare = comparing revcoord 
 
 instance Ix Cell where
@@ -29,9 +30,11 @@ instance Ix Cell where
   index (a,b) c   = index (revcoord a, revcoord b) (revcoord c)
   inRange (a,b) c = inRange (revcoord a, revcoord b) (revcoord c)
 
+{-# INLINE coord #-}
 coord :: Cell -> (Number,Number)
 coord = x &&& y
 
+{-# INLINE revcoord #-}
 revcoord :: Cell -> (Number,Number)
 revcoord = y &&& x
 
