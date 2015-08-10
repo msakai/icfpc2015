@@ -43,7 +43,11 @@ findFullRows b = filter fullRow [0 .. h-1]
     w = cols b
     h = rows b
     fs = fulls b
-    fullRow r = Set.size (Set.filter ((r==) . y) fs) == w
+    -- fullRow r = Set.size (Set.filter ((r==) . y) fs) == w         
+    fullRow r = b1 && b2 && Set.size fs2 == w-2
+      where
+        (_,b1,fs1) = Set.splitMember (Cell 0 r) fs
+        (fs2,b2,_) = Set.splitMember (Cell (w-1) r) fs1
     
 clearFullRows :: Board -> (Int, Board)
 clearFullRows b = (length &&& foldl' clearRow b) cleared
