@@ -9,6 +9,7 @@ import qualified System.Random as Rand
 
 import Types
 import qualified Board
+import Cell
 import Command
 import qualified Game
 import qualified Unit
@@ -44,3 +45,25 @@ evalGS gs = undefined
       b = Game.gsBoard gs
       (h, w) = (Board.rows &&& Board.cols) b
       cs = Board.fulls b
+
+around :: (Number, Number) -> Cell -> [Cell]
+around (h, w) (Cell x y) = filter outOfBounds (if odd y then aroundOdd else aroundEven)
+    where
+      outOfBounds :: Cell -> Bool
+      outOfBounds (Cell x y) = 0 <= x && x <= maxW && 0 <= y && y <= maxH
+      aroundOdd = [ Cell (x-1) y
+                  , Cell x (y-1)
+                  , Cell (x+1) (y-1)
+                  , Cell (x+1) y
+                  , Cell (x+1) (y+1)
+                  , Cell x (y+1)
+                  ]
+      aroundEven = [ Cell (x-1) y
+                   , Cell (x-1) (y-1)
+                   , Cell x (y-1)
+                   , Cell (x+1) y
+                   , Cell x (y+1)
+                   , Cell (x-1) (y+1)
+                   ]
+      (maxH, maxW) = (h-1, w-1)
+                     
