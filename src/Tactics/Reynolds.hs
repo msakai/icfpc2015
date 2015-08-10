@@ -1,5 +1,6 @@
 module Tactics.Reynolds
        ( newPlayer
+       , evalGS
        )where
 
 import Control.Arrow ((&&&))
