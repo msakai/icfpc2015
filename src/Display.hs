@@ -20,15 +20,22 @@ symEmpty = text [chr 0x00b7]
 symFull :: Box
 symFull = text "*"
 
+symUnit :: Box
+symUnit = text "@"
+
 dispBoard :: Board -> [Unit] -> Box
 dispBoard b us = vcat top $ zigzag $ map (hsep 1 left . map disp) ls
   where
-    disp c = dispCell (Set.member c cs) c
+    disp c
+      | c `Set.member` ms = symUnit
+      | c `Set.member` fs = symFull
+      | otherwise = symEmpty
     ls  = splitsBy w rng
     rng = range (cell (0,0), cell (w-1,h-1)) 
     h  = Board.rows b
     w  = Board.cols b
-    cs = Set.unions $ fulls b : map members us
+    fs = fulls b
+    ms = Set.unions $ map members us
 
 splitsBy :: Number -> [a] -> [[a]]
 splitsBy k = unfoldr phi
