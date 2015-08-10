@@ -4,6 +4,7 @@
 module Tactics.Util
   ( allLockablePlaces
   , randomWalkTillLocked
+  , randomWalkTillLockedWithPPs
   ) where
 
 import Control.Monad
@@ -46,17 +47,22 @@ allLockablePlaces g = loop (Map.singleton (Game.gsCurUnit g) ([], g)) Set.empty 
                  ]
 
 randomWalkTillLocked :: Rand.RandomGen g => g -> Game.GameState -> ([Command], Game.GameState, g)
-randomWalkTillLocked g gs = loop g [] gs
+randomWalkTillLocked = randomWalkTillLockedWithPPs []
+
+randomWalkTillLockedWithPPs :: Rand.RandomGen g => [[Command]] -> g -> Game.GameState -> ([Command], Game.GameState, g)                        
+randomWalkTillLockedWithPPs pp g gs = loop g [] gs
   where
-    loop g cmds gs
-      | Game.gsLocked gs2 = (reverse cmds2, gs2, g')
-      | otherwise = loop g' cmds2 gs2
+    loop g acts gs
+      | Game.gsLocked gs2 = (concat (reverse acts2), gs2, g')
+      | otherwise = loop g' acts2 gs2
       where
-        (cmds2, gs2) =
-          if null gss2 then error "randomWalkTillLock: should not happen"
+        (acts2, gs2) =
+          if null gss2 then error "randomWalkTillLockWithPP: should not happen"
           else gss2 !! i
-        gss2 = [(c : cmds, gs2) | c <- allCommands, let gs2 = Game.gameStep c gs, Game.gsStatus gs2 /= Game.Error]
+        gss2 = [(act : acts, gs2) | act <- allActions, let gs2 = Game.gameStepN act gs, Game.gsStatus gs2 /= Game.Error]
         (i, g') = Rand.randomR (0, length gss2 - 1) g
+
+    allActions = [[c] | c <- allCommands] ++ pp
 
 applyCommand :: Command -> Unit -> Unit
 applyCommand (Move dir) = Unit.move dir
