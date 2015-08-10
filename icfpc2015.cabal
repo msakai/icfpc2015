@@ -31,6 +31,7 @@ library
                        , Tactics.SimpleFor1
                        , Tactics.SimpleFor1b
                        , Tactics.Reynolds
+                       , Tactics.SearchAllLocking
                        , Tactics.Util
   -- other-modules:       
   -- other-extensions:    
