@@ -82,15 +82,11 @@ phrases = (\\ ["Ia!"])
            ,"Yuggoth"
            ,"Cthulhu fhtagn!"
            ] ++ extra51 : words extra51 ++ extra23 : words extra23
-           ++ moons
           )
 
 extra51,extra23 :: String
 extra51 = "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
 extra23 = "Ia! Ia! Cthulhu fhtagn!"
-
-moons :: [String]
-moons =  ["Nithon","Thog","Thok"]
 
 phraseDict :: [(Commands,String)]
 phraseDict = map (stringToCommands &&& Prelude.id) phrases
