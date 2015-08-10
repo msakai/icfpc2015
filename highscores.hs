@@ -2,7 +2,8 @@
 module Main where
 
 import Control.Monad (forM_)
-import System.Directory
+import System.Directory (getDirectoryContents)
+import System.Environment (getArgs)
 import Data.List (groupBy, sortBy, isSuffixOf)
 
 type Pt = Int
@@ -24,10 +25,12 @@ instance Ord Result where
   x <= y = pt x <= pt y
 
 main = do
-  files <- getDirectoryContents "outputs"
+  (dir:_) <- getArgs
+  files <- getDirectoryContents dir
   let rs = map toResult $ filter (isSuffixOf ".json") files
   let fs = map (filename.maximum) $ groupBy hash $ sortBy hash' rs
-  forM_ fs putStrLn
+  forM_ fs $ \f ->
+    putStrLn (dir ++ "/" ++ f)
   where
     hash x y = key x == key y
     hash' x y = compare (key x) (key y)
