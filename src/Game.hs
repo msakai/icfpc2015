@@ -130,6 +130,7 @@ gameStepN :: [Command] -> GameState -> GameState
 gameStepN cmds old = foldl' (flip gameStep) old cmds
 
 gameStep :: Command -> GameState -> GameState
+gameStep _ old | gsStatus old /= Running = old
 gameStep cmd old = old { gsBoard     = newboard
                        , gsCurUnit   = case newstatus of
                            Game.Error    -> oldcur
