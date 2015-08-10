@@ -111,3 +111,13 @@ cp [] = [[]]
 cp (xs:xss) = [x:ys | x <- xs, ys <- yss]
               where
                 yss = cp xss
+
+powerPhrases :: [String]
+powerPhrases =
+  [ "Ei!"
+  , "Ia! Ia!"
+  , "R'lyeh"
+  , "Yuggoth"
+  , "Cthulhu fhtagn!"
+  , "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn" -- 確定はしていない
+  ]
