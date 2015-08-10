@@ -15,20 +15,20 @@ import Command
 import qualified Game
 import qualified Unit
 import Play
-import Tactics.Util (randomWalkTillLocked)
+import Tactics.Util (randomWalkTillLockedWithPPs)
 
 newPlayer :: Int -> IO Player
 newPlayer n = do
   rs <- sequence $ take n $ repeat Rand.newStdGen
-  return $ player rs
+  return $ player [cmds | pp <- powerPhrases, let cmds = stringToCommands pp] rs
 
-player :: Rand.RandomGen r => [r] -> Player
-player rs = do
+player :: Rand.RandomGen r => [Commands] -> [r] -> Player
+player pps rs = do
   gs <- getGameState
-  let futures = [randomWalkTillLocked r gs | r <- rs]
+  let futures = [randomWalkTillLockedWithPPs pps r gs | r <- rs]
       (cmds,gs',r') = maximumBy (comparing (\(cmds,gs',r') -> evalGS gs')) futures
   mapM_ command cmds
-  player [r' | (cmds,gs',r') <- futures]
+  player pps [r' | (cmds,gs',r') <- futures]
 
 evalGS :: Game.GameState -> Float
 evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
