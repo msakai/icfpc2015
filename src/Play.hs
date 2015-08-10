@@ -37,14 +37,14 @@ genTag n sd = do
   let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
   return $ "problem" ++ show n ++ "-seed" ++ show sd ++ "-"++ show h ++ "-" ++ show m ++ "-" ++ show s
 
-burst :: ProblemId -> Int -> IO Player -> IO ()
-burst pid cyc newPlayer = do
+burst :: ProblemId -> Int -> DisplayMode -> IO Player -> IO ()
+burst pid cyc displayMode newPlayer = do
   Just inp <- readProblem ("problems/problem_"++show pid++".json")
   let sdN = length $ sourceSeeds inp
   forM_ [1..cyc] $ \n -> do
     forM_ [0..sdN-1] $ \sd -> do
       player <- newPlayer
-      autoPlay pid sd player
+      autoPlay pid sd displayMode player
 
 data DisplayMode
   = DisplayAll
@@ -52,10 +52,9 @@ data DisplayMode
   | DisplayNone
   deriving (Show, Eq, Ord, Enum, Bounded)
 
-autoPlay :: ProblemId -> SeedNo -> Player -> IO ()
-autoPlay n sd player = testPlay n sd $ loop player
+autoPlay :: ProblemId -> SeedNo -> DisplayMode -> Player -> IO ()
+autoPlay n sd displayMode player = testPlay n sd $ loop player
   where
-    displayMode = DisplayNone -- DisplayLocked
     wait = 0
     
     loop player = do
