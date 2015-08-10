@@ -2,6 +2,7 @@
 module Main where
 
 import Control.Monad (forM_)
+import Data.List.Split (splitOn)
 import System.Directory (getDirectoryContents)
 import System.Environment (getArgs)
 import Data.List (groupBy, sortBy, isSuffixOf)
@@ -41,10 +42,4 @@ toResult fn = Result pt' pid sid fn
   where
     pt' :: Pt
     pt' = read $ take (length pt - 2) pt
-    (pt:pid:sid:_) = split fn
-
-split :: String -> [String]
-split s = case dropWhile (=='-') s of
-  "" -> []
-  s' -> w : split s''
-      where (w, s'') = break (=='-') s'
+    (pt:pid:sid:_) = splitOn "-" fn
