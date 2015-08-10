@@ -26,6 +26,9 @@ instance ToJSON Command
 instance FromJSON Commands
 instance ToJSON Commands
 
+allCommands :: [Command]
+allCommands = [Move E, Move W, Move SE, Move SW, Turn CW, Turn CCW]
+
 dict :: [(Command, String)]
 dict =  [ (Move W,   "p'!.03")
         , (Move E,   "bcefy2")
