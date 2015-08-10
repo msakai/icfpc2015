@@ -36,18 +36,32 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
       b = Game.gsBoard gs
       hw@(h, w) = (Board.rows &&& Board.cols) b
       cs = Board.fulls b
+      aroundcs = around hw
 
       reynolds = fromIntegral volume / fromIntegral surface
       volume = length cs
-      surface = foldr (\c x -> x + (fact $ length $ filter spacep $ around hw c)) 0 cs
+      surface = foldr (\c x -> x + (fact $ length $ filter spacep $ aroundcs c)) 0 cs
       spacep :: Cell -> Bool
       spacep c = c `notElem` cs
       fact 0 = 1
       fact n = n * fact (n-1)
 
-      -- low level is value
-      position = foldr (\c x -> (pos c)^2 + x) 0 cs
+      -- low level is value and around spaces is value
+      position = foldr (\c x -> (pos c)^2 + x + aroundVal c) 0 cs
       pos (Cell x y) = fromIntegral x + fromIntegral y
+      aroundVal c = besideOf (xs !! 0) + aboveOf (xs !! 1) + aboveOf(xs !! 2) +
+                    besideOf (xs !! 3) + belowOf (xs !! 4) + belowOf (xs !! 5)
+          where
+            xs = virtualAroundCells c
+            besideOf c = if outOfBounds hw c
+                         then 5
+                         else if spacep c then -1 else 1
+            aboveOf c = if outOfBounds hw c
+                        then -5
+                        else if spacep c then -1 else 1
+            belowOf c = if outOfBounds hw c
+                        then 5
+                        else if spacep c then -5 else 1
 
       -- sit down is value
       sitdown = fromIntegral $ (fromInteger highwatermark)^10
@@ -61,22 +75,29 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
       score = fromIntegral $ Game.gsScore gs
 
 around :: (Number, Number) -> Cell -> [Cell]
-around (h, w) (Cell x y) = filter outOfBounds (if odd y then aroundOdd else aroundEven)
+around hw@(h, w) c@(Cell x y) = filter (outOfBounds hw) $ virtualAroundCells c
+
+outOfBounds :: (Number, Number) -> Cell -> Bool
+outOfBounds (h, w) (Cell x y) = 0 <= x && x <= maxW && 0 <= y && y <= maxH
     where
-      outOfBounds :: Cell -> Bool
-      outOfBounds (Cell x y) = 0 <= x && x <= maxW && 0 <= y && y <= maxH
-      aroundOdd = [ Cell (x-1) y
-                  , Cell x (y-1)
-                  , Cell (x+1) (y-1)
-                  , Cell (x+1) y
-                  , Cell (x+1) (y+1)
-                  , Cell x (y+1)
-                  ]
-      aroundEven = [ Cell (x-1) y
-                   , Cell (x-1) (y-1)
-                   , Cell x (y-1)
-                   , Cell (x+1) y
-                   , Cell x (y+1)
-                   , Cell (x-1) (y+1)
-                   ]
       (maxH, maxW) = (h-1, w-1)
+
+virtualAroundCells :: Cell -> [Cell]
+virtualAroundCells c@(Cell x y) = if odd y then aroundOdd c else aroundEven c
+
+aroundOdd :: Cell -> [Cell]
+aroundOdd (Cell x y)  = [ Cell (x-1) y
+                        , Cell x (y-1)
+                        , Cell (x+1) (y-1)
+                        , Cell (x+1) y
+                        , Cell (x+1) (y+1)
+                        , Cell x (y+1)
+                        ]
+aroundEven :: Cell -> [Cell]
+aroundEven (Cell x y) = [ Cell (x-1) y
+                        , Cell (x-1) (y-1)
+                        , Cell x (y-1)
+                        , Cell (x+1) y
+                        , Cell x (y+1)
+                        , Cell (x-1) (y+1)
+                        ]
