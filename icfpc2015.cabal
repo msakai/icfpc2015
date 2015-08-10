@@ -93,3 +93,11 @@ executable burst
       base
     , icfpc2015
   Default-Language: Haskell2010
+
+executable highscores
+  Main-is: highscores.hs
+  Build-Depends:
+      base
+    , directory >=1.2
+  Default-Language: Haskell2010
+
