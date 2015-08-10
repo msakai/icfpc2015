@@ -31,24 +31,26 @@ player rs = do
   player [r' | (cmds,gs',r') <- futures]
 
 evalGS :: Game.GameState -> Float
-evalGS gs = (reynolds + position + sitdown + score)^(1 + Game.gsLs gs)
+evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
     where
       b = Game.gsBoard gs
       hw@(h, w) = (Board.rows &&& Board.cols) b
       cs = Board.fulls b
 
-      volume = length cs
-      surface = foldr (\c x -> x + (length $ filter spacep $ around hw c)) 0 cs
       reynolds = fromIntegral volume / fromIntegral surface
+      volume = length cs
+      surface = foldr (\c x -> x + (fact $ length $ filter spacep $ around hw c)) 0 cs
       spacep :: Cell -> Bool
       spacep c = c `notElem` cs
+      fact 0 = 1
+      fact n = n * fact (n-1)
 
       -- low level is value
       position = foldr (\c x -> (pos c)^2 + x) 0 cs
       pos (Cell x y) = fromIntegral x + fromIntegral y
 
       -- sit down is value
-      sitdown = fromIntegral $ (fromInteger highwatermark)^7
+      sitdown = fromIntegral $ (fromInteger highwatermark)^10
       highwatermark = minimum $ map (toInteger.height) $ Set.toList cs
       height (Cell x y) = y
 
