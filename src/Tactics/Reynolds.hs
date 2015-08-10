@@ -1,10 +1,11 @@
-module Reynolds
+module Tactics.Reynolds
        ( newPlayer
        )where
 
 import Control.Arrow ((&&&))
-import Data.List (sort)
 import qualified Data.Set as Set
+import Data.List
+import Data.Ord (comparing)
 import qualified System.Random as Rand
 
 import Types
@@ -14,6 +15,7 @@ import Command
 import qualified Game
 import qualified Unit
 import Play
+import Tactics.Util (randomWalkTillLocked)
 
 newPlayer :: IO Player
 newPlayer = do
@@ -23,24 +25,13 @@ newPlayer = do
 player :: Rand.RandomGen r => [r] -> Player
 player rs = do
   gs <- getGameState
-  let futures = map (uncurry runTillLock) $ zip rs (repeat gs)
-      cs = best futures
-  return undefined
-
-runTillLock :: Rand.RandomGen r => r -> Game.GameState -> Game.GameState
-runTillLock r gs = undefined
-
-best :: [Game.GameState] -> Game.GameState
-best = head . sort
-
-instance Eq Game.GameState where
-  x == y = evalGS x == evalGS y
-
-instance Ord Game.GameState where
-  compare x y = compare (evalGS x) (evalGS y)
+  let futures = [randomWalkTillLocked r gs | r <- rs]
+      (cmds,gs',r') = maximumBy (comparing (\(cmds,gs',r') -> evalGS gs')) futures
+  mapM_ command cmds
+  player [r' | (cmds,gs',r') <- futures]
 
 evalGS :: Game.GameState -> Int
-evalGS gs = undefined
+evalGS gs = Game.gsScore gs
     where
       b = Game.gsBoard gs
       (h, w) = (Board.rows &&& Board.cols) b
@@ -66,4 +57,3 @@ around (h, w) (Cell x y) = filter outOfBounds (if odd y then aroundOdd else arou
                    , Cell (x-1) (y+1)
                    ]
       (maxH, maxW) = (h-1, w-1)
-                     

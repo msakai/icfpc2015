@@ -90,7 +90,9 @@ data GameState = GameState
   --
   , gsLs        :: Pt
   , gsScore     :: Pt
+  , gsPOccur    :: Set.Set Commands
   }
+  deriving (Show)
 
 defaultGameState :: String -> Input -> GameState
 defaultGameState tg input = GameState
@@ -110,6 +112,7 @@ defaultGameState tg input = GameState
   --
   , gsLs        = 0
   , gsScore     = 0
+  , gsPOccur    = Set.empty
   }
 
 initGameStates :: String -> Input -> [GameState]
@@ -128,6 +131,7 @@ gameStepN :: [Command] -> GameState -> GameState
 gameStepN cmds old = foldl' (flip gameStep) old cmds
 
 gameStep :: Command -> GameState -> GameState
+gameStep _ old | gsStatus old /= Running = old
 gameStep cmd old = old { gsBoard     = newboard
                        , gsCurUnit   = case newstatus of
                            Game.Error    -> oldcur
@@ -136,11 +140,12 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsSource    = if lockedp then tail oldsource else oldsource
                        , gsLocked    = lockedp
                        , gsStatus    = newstatus
-                       , gsCommands  = cmd : gsCommands old
+                       , gsCommands  = newcmds
                        , gsTrace     = if lockedp then Set.singleton freshcur
                                        else Set.insert newcur oldtrace
                        , gsLs        = ls
                        , gsScore     = newscore
+                       , gsPOccur    = newpoccur
                        }
   where
     nospace   = not (valid newboard freshcur)
@@ -159,10 +164,13 @@ gameStep cmd old = old { gsBoard     = newboard
     unitsize  = if lockedp then size oldcur else 0
     newscore  = case newstatus of
       Game.Error -> 0
-      _          -> oldscore + move_score unitsize ls old_ls
+      _          -> oldscore + move_score unitsize ls old_ls + pwrscr
     newstatus = if Set.member newcur oldtrace then Game.Error
                 else if lockedp && (fini || nospace) then Game.Finished
                      else Game.Running
+    newcmds   = cmd : gsCommands old
+    oldpoccur = gsPOccur old
+    (pwrscr,newpoccur) = power_score newcmds oldpoccur
 
 issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir

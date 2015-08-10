@@ -56,7 +56,8 @@ script:
    cd ..
 
 after_script:
- - "[ -n \"$COVERAGE\" ] && which hpc-coveralls && hpc-coveralls --help && hpc-coveralls --service-name=travis-pro --repo-token=i3F9AOHilhEE0aawubcouOHLp54BYDbFj --exclude-dir=test --display-report --curl-verbose test || true"
+ - env
+ - "[ -n \"$COVERAGE\" ] && hpc-coveralls --service-name=travis-pro --repo-token=i3F9AOHilhEE0aawubcouOHLp54BYDbFj --exclude-dir=test --display-report --curl-verbose test || true"
 
 notifications:
   slack:
