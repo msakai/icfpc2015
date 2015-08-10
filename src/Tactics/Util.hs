@@ -3,6 +3,7 @@
   #-}
 module Tactics.Util
   ( allLockablePlaces
+  , randomWalkTillLocked
   ) where
 
 import Control.Monad
@@ -11,6 +12,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
+import qualified System.Random as Rand
 
 import Command
 import qualified Game
@@ -43,6 +45,19 @@ allLockablePlaces g = loop (Map.singleton (Game.gsCurUnit g) ([], g)) Set.empty 
                  , u2 `Set.notMember` visited
                  ]
 
+randomWalkTillLocked :: Rand.RandomGen g => g -> Game.GameState -> ([Command], Game.GameState, g)
+randomWalkTillLocked g gs = loop g [] gs
+  where
+    loop g cmds gs
+      | Game.gsLocked gs2 = (reverse cmds2, gs2, g')
+      | otherwise = loop g' cmds2 gs2
+      where
+        (cmds2, gs2) =
+          if null gss2 then error "randomWalkTillLock: should not happen"
+          else gss2 !! i
+        gss2 = [(c : cmds, gs2) | c <- allCommands, let gs2 = Game.gameStep c gs, Game.gsStatus gs2 /= Game.Error]
+        (i, g') = Rand.randomR (0, length gss2 - 1) g
+
 applyCommand :: Command -> Unit -> Unit
 applyCommand (Move dir) = Unit.move dir
 applyCommand (Turn dir) = Unit.turn dir
@@ -55,3 +70,14 @@ test_allLockablePlaces = do
   forM_ (Map.toList m) $ \(u, (cmds, g)) -> do
     putStrLn "----"
     Game.gameDisplay g
+
+test_randomWalkTillLocked = do
+  Just input <- readProblem "problems/problem_1.json"
+  let gs0 = head $ Game.initGameStates "" input
+  Game.gameDisplay gs0
+  g <- Rand.newStdGen
+  putStrLn "----"
+  let (cmds, gs, g') = randomWalkTillLocked g gs0
+  -- Game.gameDisplay gs
+  Game.gameDisplay $ Game.gameStepN (init cmds) gs0 -- ロックして次のピースが出てくる前の状態を印字
+  print cmds
