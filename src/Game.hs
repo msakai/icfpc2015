@@ -92,6 +92,7 @@ data GameState = GameState
   , gsScore     :: Pt
   , gsPOccur    :: Set.Set Commands
   }
+  deriving (Show)
 
 defaultGameState :: String -> Input -> GameState
 defaultGameState tg input = GameState
