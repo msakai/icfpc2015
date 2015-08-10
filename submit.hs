@@ -3,6 +3,7 @@
   #-}
 
 -- import Data.Aeson
+import Control.Monad (forM_)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import qualified Network.HTTP.Client as HTTP
@@ -16,9 +17,11 @@ import qualified Game
 main :: IO ()
 main = do
   args <- getArgs
-  case args of
-    [arg] -> do
-      lbs <- LBS.readFile arg
+  forM_ args submit
+
+submit :: FilePath -> IO ()
+submit fs = do
+      lbs <- LBS.readFile fs
       mgr <- HTTP.newManager HTTPS.tlsManagerSettings -- HTTP.defaultManagerSettings
 
       mApiToken <- lookupEnv "API_TOKEN"
