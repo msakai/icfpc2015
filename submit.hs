@@ -1,8 +1,9 @@
 {-# LANGUAGE
     OverloadedStrings
+  , ScopedTypeVariables
   #-}
 
--- import Data.Aeson
+import Data.Aeson
 import Control.Monad (forM_)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
@@ -17,11 +18,14 @@ import qualified Game
 main :: IO ()
 main = do
   args <- getArgs
-  forM_ args submit
+  ss <- mapM LBS.readFile args
+  let json :: LBS.ByteString
+      json = encode [x | s <- ss, Just [x :: Value] <- return (decode s)]
+  --LBS.putStrLn json
+  submit json
 
-submit :: FilePath -> IO ()
-submit fs = do
-      lbs <- LBS.readFile fs
+submit :: LBS.ByteString -> IO ()
+submit lbs = do
       mgr <- HTTP.newManager HTTPS.tlsManagerSettings -- HTTP.defaultManagerSettings
 
       mApiToken <- lookupEnv "API_TOKEN"
