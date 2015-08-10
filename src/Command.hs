@@ -77,25 +77,12 @@ phrases =  sortBy (flip (comparing length))
            ,"Ia! Ia!"
            ,"R'lyeh"
            ,"Yuggoth"
+           ,"Cthulhu fhtagn!"
+           ,"Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn" -- not verified but we believe
            ]
 
-{-
-phrases :: [String]
-phrases = (\\ ["Ia!","fhtagn"])
-        $ map head
-        $ group 
-        $ sortBy (flip (comparing length))
-        $ (["Ei!"
-           ,"Ia! Ia!"
-           ,"R'lyeh"
-           ,"Yuggoth"
-           ,"Cthulhu fhtagn!"
-           ] ++ extra51 : words extra51 ++ extra23 : words extra23
-          )
--}
-extra51,extra23 :: String
+extra51 :: String
 extra51 = "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
-extra23 = "Ia! Ia! Cthulhu fhtagn!"
 
 phraseDict :: [(Commands,String)]
 phraseDict = map (stringToCommands &&& Prelude.id) phrases
