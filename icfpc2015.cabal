@@ -29,7 +29,8 @@ library
                        , Tactics.RandomWalk
                        , Tactics.RandomWalk2
                        , Tactics.SimpleFor1
-                       , Tactics.SimpleFor1b                       
+                       , Tactics.SimpleFor1b
+                       , Tactics.Util
   -- other-modules:       
   -- other-extensions:    
   build-depends:       aeson >= 0.9
