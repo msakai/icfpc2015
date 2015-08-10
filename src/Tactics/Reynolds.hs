@@ -42,7 +42,7 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
       volume = length cs
       surface = foldr (\c x -> x + (fact $ length $ filter spacep $ aroundcs c)) 0 cs
       spacep :: Cell -> Bool
-      spacep c = c `notElem` cs
+      spacep c = c `Set.notMember` cs
       fact 0 = 1
       fact n = n * fact (n-1)
 
