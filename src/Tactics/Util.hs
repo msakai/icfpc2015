@@ -59,10 +59,26 @@ randomWalkTillLockedWithPPs pp g gs = loop g [] gs
         (acts2, gs2) =
           if null gss2 then error "randomWalkTillLockWithPP: should not happen"
           else gss2 !! i
-        gss2 = [(act : acts, gs2) | act <- allActions, let gs2 = Game.gameStepN act gs, Game.gsStatus gs2 /= Game.Error]
+        --gss2 = [(act : acts, gs2) | act <- allActions, let gs2 = Game.gameStepN act gs, Game.gsStatus gs2 /= Game.Error]
+        --gss2 = [(act2 : acts, gs2) | act <- allActions, let (act2,gs2) = stepN act gs, Game.gsStatus gs2 /= Game.Error]
+        gss2 = [(act2 : acts, gs2) | act <- allActions, (act2,gs2) <- stepN2 act gs, Game.gsStatus gs2 /= Game.Error]
         (i, g') = Rand.randomR (0, length gss2 - 1) g
 
     allActions = [[c] | c <- allCommands] ++ pp
+
+stepN :: [Command] -> Game.GameState -> ([Command], Game.GameState)
+stepN (c:cs) = loop cs [c] . Game.gameStep c
+  where
+    loop [] hist g = (reverse hist, g)
+    loop _ hist g | Game.gsLocked g = (reverse hist, g)
+    loop (c:cs) hist g = loop cs (c : hist) (Game.gameStep c g)
+
+stepN2 :: [Command] -> Game.GameState -> [([Command], Game.GameState)]
+stepN2 (c:cs) = loop cs [c] . Game.gameStep c
+  where
+    loop [] hist g = [(reverse hist, g)]
+    loop _ hist g | Game.gsLocked g = [] -- (reverse hist, g)
+    loop (c:cs) hist g = loop cs (c : hist) (Game.gameStep c g)                         
 
 applyCommand :: Command -> Unit -> Unit
 applyCommand (Move dir) = Unit.move dir
