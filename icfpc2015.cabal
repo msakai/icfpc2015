@@ -30,6 +30,7 @@ library
                        , Tactics.RandomWalk2
                        , Tactics.SimpleFor1
                        , Tactics.SimpleFor1b
+                       , Tactics.Reynolds
                        , Tactics.Util
   -- other-modules:       
   -- other-extensions:    
