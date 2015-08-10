@@ -2,10 +2,13 @@ module Reynolds
        ( newPlayer
        )where
 
+import Control.Arrow ((&&&))
 import Data.List (sort)
+import qualified Data.Set as Set
 import qualified System.Random as Rand
 
 import Types
+import qualified Board
 import Command
 import qualified Game
 import qualified Unit
@@ -36,4 +39,8 @@ instance Ord Game.GameState where
   compare x y = compare (evalGS x) (evalGS y)
 
 evalGS :: Game.GameState -> Int
-evalGS = undefined
+evalGS gs = undefined
+    where
+      b = Game.gsBoard gs
+      (h, w) = (Board.rows &&& Board.cols) b
+      cs = Board.fulls b
