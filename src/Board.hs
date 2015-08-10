@@ -1,4 +1,11 @@
-module Board where
+module Board
+  ( Board (..)
+  , mkBoard
+  , isEmptyCell
+  , isValidUnit
+  , lockUnit
+  , clearFullRows
+  ) where
 
 import Control.Arrow ((&&&))
 import Data.Ix (inRange,range)
@@ -10,13 +17,16 @@ import Cell
 import Unit
 import Types
 
-import Debug.Trace
-
 data Board = Board { cols :: Number, rows :: Number, fulls :: Set Cell } deriving (Show,Eq)
 
+mkBoard :: Number -> Number -> [Cell] -> Board
+mkBoard width height cs = Board { cols = width, rows = height, fulls = Set.fromList cs }
 
-valid :: Board -> Unit -> Bool
-valid b u 
+isEmptyCell :: Board -> Cell -> Bool
+isEmptyCell b c = c `Set.notMember` fulls b
+
+isValidUnit :: Board -> Unit -> Bool
+isValidUnit b u 
  = notBatting && withinRange
    where
      notBatting  = Set.null $ fs `Set.intersection` cs
