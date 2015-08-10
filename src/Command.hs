@@ -72,7 +72,16 @@ commandsToString' :: Commands -> [String]
 commandsToString' = map concat . cp . cmdsToStrings
 
 phrases :: [String]
-phrases = (\\ ["Ia!"])
+phrases =  sortBy (flip (comparing length)) 
+           ["Ei!"
+           ,"Ia! Ia!"
+           ,"R'lyeh"
+           ,"Yuggoth"
+           ]
+
+{-
+phrases :: [String]
+phrases = (\\ ["Ia!","fhtagn"])
         $ map head
         $ group 
         $ sortBy (flip (comparing length))
@@ -83,7 +92,7 @@ phrases = (\\ ["Ia!"])
            ,"Cthulhu fhtagn!"
            ] ++ extra51 : words extra51 ++ extra23 : words extra23
           )
-
+-}
 extra51,extra23 :: String
 extra51 = "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
 extra23 = "Ia! Ia! Cthulhu fhtagn!"
