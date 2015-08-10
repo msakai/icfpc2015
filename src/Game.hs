@@ -4,7 +4,22 @@
   , TypeSynonymInstances
   , FlexibleInstances
  #-}
-module Game where
+module Game
+  ( Input (..)
+  , OutputItem (..)
+  , Output
+
+  , GameStatus (..)
+  , GameState (..)
+  , initGameStates
+  , gameStep
+  , gameStepN
+
+  , Game
+  , gameDisplay
+  , gameDisplay'
+  , dumpOutputItem
+  ) where
 
 import Control.Monad.Trans.State
 import Data.Aeson
@@ -53,9 +68,6 @@ instance ToJSON OutputItem
 instance FromJSON Output
 instance ToJSON Output
 
-initBoard :: Input -> Board
-initBoard i = Board { cols = width i, rows = height i, fulls = Set.fromList (filled i) }
-
 initSources :: Input -> [(Number,[Unit])]
 initSources input = zip seeds 
                   $ map (initSource arr . take (sourceLength input) . generate . fromIntegral) seeds
@@ -94,38 +106,38 @@ data GameState = GameState
   }
   deriving (Show)
 
-defaultGameState :: String -> Input -> GameState
-defaultGameState tg input = GameState
-  { gsProblemId = id input
-  , gsSeed      = undefined
-  , gsTag       = tg
-  , gsUnits     = units input
-  -- 
-  , gsBoard     = initBoard input
-  , gsCurUnit   = undefined
-  , gsSource    = undefined
-  --
-  , gsLocked    = False
-  , gsStatus    = Running
-  , gsCommands  = []
-  , gsTrace     = Set.empty
-  --
-  , gsLs        = 0
-  , gsScore     = 0
-  , gsPOccur    = Set.empty
-  }
-
 initGameStates :: String -> Input -> [GameState]
 initGameStates tg input = map (initGameState (defaultGameState tg input)) (initSources input)
-
-initGameState :: GameState -> (Number,[Unit]) -> GameState
-initGameState d (sd,src) = d { gsSeed    = sd
-                             , gsCurUnit = iu
-                             , gsSource  = tail src
-                             , gsTrace   = Set.singleton iu
-                             }
   where
-    iu = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
+    defaultGameState :: String -> Input -> GameState
+    defaultGameState tg input = GameState
+      { gsProblemId = id input
+      , gsSeed      = undefined
+      , gsTag       = tg
+      , gsUnits     = units input
+      -- 
+      , gsBoard     = mkBoard (width input) (height input) (filled input)
+      , gsCurUnit   = undefined
+      , gsSource    = undefined
+      --
+      , gsLocked    = False
+      , gsStatus    = Running
+      , gsCommands  = []
+      , gsTrace     = Set.empty
+      --
+      , gsLs        = 0
+      , gsScore     = 0
+      , gsPOccur    = Set.empty
+      }
+
+    initGameState :: GameState -> (Number,[Unit]) -> GameState
+    initGameState d (sd,src) = d { gsSeed    = sd
+                                 , gsCurUnit = iu
+                                 , gsSource  = tail src
+                                 , gsTrace   = Set.singleton iu
+                                 }
+      where
+        iu = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
 
 gameStepN :: [Command] -> GameState -> GameState
 gameStepN cmds old = foldl' (flip gameStep) old cmds
@@ -148,7 +160,7 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsPOccur    = newpoccur
                        }
   where
-    nospace   = not (valid newboard freshcur)
+    nospace   = not (isValidUnit newboard freshcur)
     fini      = null oldsource
     freshcur  = spawn (cols oldboard, rows oldboard) (head oldsource)
     oldsource = gsSource old
@@ -158,7 +170,7 @@ gameStep cmd old = old { gsBoard     = newboard
     oldboard  = gsBoard old
     newboard  = if not lockedp then oldboard else newb
     (ls,newb) = clearFullRows (lockUnit oldboard oldcur)
-    lockedp   = not (valid oldboard newcur)
+    lockedp   = not (isValidUnit oldboard newcur)
     oldscore  = gsScore old
     old_ls    = gsLs old
     unitsize  = if lockedp then size oldcur else 0
@@ -177,9 +189,6 @@ issue (Move dir) = move dir
 issue (Turn dir) = turn dir
 
 type Game = StateT GameState IO
-
-game :: Game ()
-game = undefined
 
 gameDisplay :: GameState -> IO ()
 gameDisplay gm = PPr.printBox $ dispBoard (gsBoard gm) [gsCurUnit gm]
