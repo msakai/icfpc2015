@@ -9,6 +9,7 @@ import qualified Tactics.RandomWalk as RandomWalk
 import qualified Tactics.RandomWalk2 as RandomWalk2
 import qualified Tactics.RandomZigZag as RandomZigZag
 import qualified Tactics.Reynolds as Reynolds
+import qualified Tactics.Hybrid as Hybrid
 import qualified Tactics.SearchAllLocking as SearchAllLocking
 
 data Options
@@ -56,6 +57,7 @@ main = do
               "randomwalk2" -> RandomWalk2.newPlayer
               "randomzigzag" -> RandomZigZag.newPlayer
               "reynolds" -> Reynolds.newPlayer (optReynoldsN opt)
+              "hybrid" -> Hybrid.newPlayer (optReynoldsN opt)                            
               "searchalllocking" -> return SearchAllLocking.player
               _ -> error "unknown player name"
       if null args2 then
