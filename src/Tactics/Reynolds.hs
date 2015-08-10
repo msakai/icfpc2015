@@ -31,7 +31,7 @@ player rs = do
   player [r' | (cmds,gs',r') <- futures]
 
 evalGS :: Game.GameState -> Float
-evalGS gs = reynolds + position + sitdown + score
+evalGS gs = (reynolds + position + sitdown + score)^(1 + Game.gsLs gs)
     where
       b = Game.gsBoard gs
       hw@(h, w) = (Board.rows &&& Board.cols) b
@@ -44,11 +44,11 @@ evalGS gs = reynolds + position + sitdown + score
       spacep c = c `notElem` cs
 
       -- low level is value
-      position = foldr (\c x -> pos c + x) 0 cs
+      position = foldr (\c x -> (pos c)^2 + x) 0 cs
       pos (Cell x y) = fromIntegral x + fromIntegral y
 
       -- sit down is value
-      sitdown = fromIntegral $ (fromInteger highwatermark)^10
+      sitdown = fromIntegral $ (fromInteger highwatermark)^7
       highwatermark = minimum $ map (toInteger.height) $ Set.toList cs
       height (Cell x y) = y
 
