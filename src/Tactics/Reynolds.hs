@@ -40,7 +40,7 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
       aroundcs = around hw
 
       reynolds = fromIntegral volume / fromIntegral surface
-      volume = length cs
+      volume = Set.size cs
       surface = sum [fact $ length $ filter spacep $ aroundcs c | c <- Set.toList cs]
       spacep :: Cell -> Bool
       spacep c = Board.isEmptyCell b c
