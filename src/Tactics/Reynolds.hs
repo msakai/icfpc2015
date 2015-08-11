@@ -41,14 +41,14 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
 
       reynolds = fromIntegral volume / fromIntegral surface
       volume = length cs
-      surface = foldr (\c x -> x + (fact $ length $ filter spacep $ aroundcs c)) 0 cs
+      surface = sum [fact $ length $ filter spacep $ aroundcs c | c <- Set.toList cs]
       spacep :: Cell -> Bool
       spacep c = Board.isEmptyCell b c
       fact 0 = 1
       fact n = n * fact (n-1)
 
       -- low level is value and around spaces is value
-      position = foldr (\c x -> (pos c)^2 + x + aroundVal c) 0 cs
+      position = sum [(pos c)^2 + aroundVal c | c <- Set.toList cs]
       pos (Cell x y) = fromIntegral x + fromIntegral y
       aroundVal c = besideOf (xs !! 0) + aboveOf (xs !! 1) + aboveOf(xs !! 2) +
                     besideOf (xs !! 3) + belowOf (xs !! 4) + belowOf (xs !! 5)
@@ -66,7 +66,7 @@ evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)
 
       -- sit down is value
       sitdown = fromIntegral $ (fromInteger highwatermark)^10
-      highwatermark = if null cs then (toInteger h-1) else minimum $ map (toInteger.height) $ Set.toList cs
+      highwatermark = if Set.null cs then (toInteger h-1) else minimum $ map (toInteger.height) $ Set.toList cs
       height (Cell x y) = y
 
       -- ls is good
