@@ -19,6 +19,7 @@ data Options
   = Options
   { optDisplayMode :: DisplayMode
   , optWaitSec :: Double
+  , optSeedIdxs :: [Int]
   , optPlayer :: String
   , optRepeatNum :: Int
   , optReynoldsN :: Int                   
@@ -28,6 +29,7 @@ defaultOptions :: Options
 defaultOptions
   = Options
   { optDisplayMode = DisplayAll
+  , optSeedIdxs    = []
   , optWaitSec     = 0
   , optPlayer      = "reynolds"
   , optRepeatNum   = 1
@@ -38,6 +40,7 @@ options :: [OptDescr (Options -> Options)]
 options =
   [ Option [] ["display-mode"] (ReqArg (\val opt -> opt{ optDisplayMode = parseDisplayMode val }) "str") "display mode: all, locked, none"
   , Option [] ["wait"] (ReqArg (\val opt -> opt{ optWaitSec = read val }) "double") "wait (in sec)"
+  , Option [] ["seed"] (ReqArg (\val opt -> opt{ optSeedIdxs = read val : optSeedIdxs opt }) "int") "seed index (multiple options allowed)"
   , Option [] ["player"] (ReqArg (\val opt -> opt{ optPlayer = val }) "str") "player name"
   , Option [] ["repeat"] (ReqArg (\val opt -> opt{ optRepeatNum = read val }) "int") "number of repetition (default: 1)"
   , Option [] ["reynolds-n"] (ReqArg (\val opt -> opt{ optReynoldsN = read val }) "int") ("(default: " ++  show (optReynoldsN defaultOptions) ++ ")")
@@ -70,18 +73,23 @@ main = do
         help
       else do
         forM_ args2 $ \problemid -> do
-          burst (read problemid) (optRepeatNum opt) (optDisplayMode opt) (optWaitSec opt) newPlayer
+          burst (read problemid) (optRepeatNum opt) (optSeedIdxs opt) (optDisplayMode opt) (optWaitSec opt) newPlayer
 
     _ -> help
 
 help :: IO ()
 help = putStrLn $ usageInfo "USAGE: burst [OPTIONS] problemId1 problemId2 .." options
 
-burst :: ProblemId -> Int -> DisplayMode -> Double -> IO Player -> IO ()
-burst pid cyc displayMode wait_s newPlayer = do
+burst :: ProblemId -> Int -> [Int] -> DisplayMode -> Double -> IO Player -> IO ()
+burst pid cyc seedIdxs displayMode wait_s newPlayer = do
   Just inp <- readProblem ("problems/problem_"++show pid++".json")
   let sdN = length $ sourceSeeds inp
   forM_ [1..cyc] $ \n -> do
-    forM_ [0..sdN-1] $ \sd -> do
-      player <- newPlayer
-      autoPlay pid sd displayMode wait_s player
+    if null seedIdxs then do
+      forM_ [0..sdN-1] $ \sd -> do
+        player <- newPlayer
+        autoPlay pid sd displayMode wait_s player
+    else
+      forM_ seedIdxs $ \sd -> do
+        player <- newPlayer
+        autoPlay pid sd displayMode wait_s player
