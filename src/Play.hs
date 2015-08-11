@@ -57,26 +57,27 @@ data DisplayMode
 
 autoPlay :: ProblemId -> SeedNo -> DisplayMode -> Double -> Player -> IO ()
 autoPlay n sd displayMode wait_s player = testPlay n sd $ loop True player
-  where    
+  where
+    wait = do
+      when (wait_s > 0) $ liftIO $ do
+        let us = ceiling (wait_s  * 10^(6::Int))
+        delay us
     loop first player = do
       gm <- get
       case displayMode of
         DisplayAll -> do
           liftIO $ gameDisplay' gm
+          wait
         DisplayLocked -> do
-          when (gsStatus gm /= Game.Running || first || gsLocked gm) $
+          when (gsStatus gm /= Game.Running || first || gsLocked gm) $ do
             liftIO $ gameDisplay' gm
+            wait
         DisplayNone -> return ()
       case gsStatus gm of
         Running -> do
-          tm1 <- liftIO getCurrentTime
           case queryPlayer gm player of
             (!c, player') -> do
               put (gameStep c gm)
-              when (wait_s > 0) $ liftIO $ do
-                tm2 <- getCurrentTime
-                let us = floor ((wait_s - realToFrac (tm2 `diffUTCTime` tm1)) * 10^(6::Int))
-                when (us > 0) $ delay us
               loop False player'
         _ -> do
           liftIO $ putStrLn "QUIT"
