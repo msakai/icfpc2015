@@ -71,6 +71,7 @@ test-suite test
   Other-Extensions: TemplateHaskell
 
 executable submit
+  HS-Source-Dirs: tools
   Main-is: submit.hs
   Build-Depends:
       base
@@ -82,22 +83,23 @@ executable submit
   Default-Language: Haskell2010
 
 executable play_cui
-  HS-Source-Dirs: play_cui
-  Main-is: Main.hs
+  HS-Source-Dirs: tools
+  Main-is: play_cui.hs
   Build-Depends:
       base
     , icfpc2015
   Default-Language: Haskell2010
 
 executable burst
-  HS-Source-Dirs: burst
-  Main-is: Main.hs
+  HS-Source-Dirs: tools
+  Main-is: burst.hs
   Build-Depends:
       base
     , icfpc2015
   Default-Language: Haskell2010
 
 executable highscores
+  HS-Source-Dirs: tools
   Main-is: highscores.hs
   Build-Depends:
       base
