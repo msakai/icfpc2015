@@ -1,3 +1,6 @@
+{-# LANGUAGE
+    BangPatterns
+  #-}
 module Play where
 
 import Control.Applicative
@@ -37,14 +40,14 @@ genTag n sd = do
   let (TimeOfDay h m s) = localTimeOfDay $ utcToLocalTime zone now
   return $ "problem" ++ show n ++ "-seed" ++ show sd ++ "-"++ show h ++ "-" ++ show m ++ "-" ++ show s
 
-burst :: ProblemId -> Int -> DisplayMode -> IO Player -> IO ()
-burst pid cyc displayMode newPlayer = do
+burst :: ProblemId -> Int -> DisplayMode -> Double -> IO Player -> IO ()
+burst pid cyc displayMode wait_s newPlayer = do
   Just inp <- readProblem ("problems/problem_"++show pid++".json")
   let sdN = length $ sourceSeeds inp
   forM_ [1..cyc] $ \n -> do
     forM_ [0..sdN-1] $ \sd -> do
       player <- newPlayer
-      autoPlay pid sd displayMode player
+      autoPlay pid sd displayMode wait_s player
 
 data DisplayMode
   = DisplayAll
@@ -52,27 +55,29 @@ data DisplayMode
   | DisplayNone
   deriving (Show, Eq, Ord, Enum, Bounded)
 
-autoPlay :: ProblemId -> SeedNo -> DisplayMode -> Player -> IO ()
-autoPlay n sd displayMode player = testPlay n sd $ loop player
-  where
-    wait = 0
-    
-    loop player = do
+autoPlay :: ProblemId -> SeedNo -> DisplayMode -> Double -> Player -> IO ()
+autoPlay n sd displayMode wait_s player = testPlay n sd $ loop True player
+  where    
+    loop first player = do
       gm <- get
       case displayMode of
         DisplayAll -> do
           liftIO $ gameDisplay' gm
-          when (wait > 0) $ liftIO $ delay wait
         DisplayLocked -> do
-          when (gsStatus gm /= Game.Running || gsLocked gm) $
+          when (gsStatus gm /= Game.Running || first || gsLocked gm) $
             liftIO $ gameDisplay' gm
-          when (wait > 0) $ liftIO $ delay wait
         DisplayNone -> return ()
       case gsStatus gm of
         Running -> do
-          let (c, player') = queryPlayer gm player
-          put (gameStep c gm)
-          loop player'
+          tm1 <- liftIO getCurrentTime
+          case queryPlayer gm player of
+            (!c, player') -> do
+              put (gameStep c gm)
+              when (wait_s > 0) $ liftIO $ do
+                tm2 <- getCurrentTime
+                let us = floor ((wait_s - realToFrac (tm2 `diffUTCTime` tm1)) * 10^(6::Int))
+                when (us > 0) $ delay us
+              loop False player'
         _ -> do
           liftIO $ putStrLn "QUIT"
           gm <- get

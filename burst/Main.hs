@@ -15,6 +15,7 @@ import qualified Tactics.SearchAllLocking as SearchAllLocking
 data Options
   = Options
   { optDisplayMode :: DisplayMode
+  , optWaitSec :: Double
   , optPlayer :: String
   , optRepeatNum :: Int
   , optReynoldsN :: Int                   
@@ -24,6 +25,7 @@ defaultOptions :: Options
 defaultOptions
   = Options
   { optDisplayMode = DisplayAll
+  , optWaitSec     = 0
   , optPlayer      = "reynolds"
   , optRepeatNum   = 1
   , optReynoldsN   = 300
@@ -32,6 +34,7 @@ defaultOptions
 options :: [OptDescr (Options -> Options)]
 options =
   [ Option [] ["display-mode"] (ReqArg (\val opt -> opt{ optDisplayMode = parseDisplayMode val }) "str") "display mode: all, locked, none"
+  , Option [] ["wait"] (ReqArg (\val opt -> opt{ optWaitSec = read val }) "double") "wait (in sec)"
   , Option [] ["player"] (ReqArg (\val opt -> opt{ optPlayer = val }) "str") "player name"
   , Option [] ["repeat"] (ReqArg (\val opt -> opt{ optRepeatNum = read val }) "int") "number of repetition (default: 1)"
   , Option [] ["reynolds-n"] (ReqArg (\val opt -> opt{ optReynoldsN = read val }) "int") ("(default: " ++  show (optReynoldsN defaultOptions) ++ ")")
@@ -64,7 +67,7 @@ main = do
         help
       else do
         forM_ args2 $ \problemid -> do
-          burst (read problemid) (optRepeatNum opt) (optDisplayMode opt) newPlayer
+          burst (read problemid) (optRepeatNum opt) (optDisplayMode opt) (optWaitSec opt) newPlayer
 
     _ -> help
 

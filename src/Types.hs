@@ -9,7 +9,6 @@ import GHC.Generics
 type Number = Int
 type Pt = Int
 type ProblemId = Int
-type WaituS = Integer
 type Tag = String
 type SeedNo = Int
 
