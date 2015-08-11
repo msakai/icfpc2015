@@ -3,8 +3,11 @@ import Data.Char
 import System.Console.GetOpt
 import System.Environment
 import System.Exit
-    
+
+import Types
+import Game hiding (id)
 import Play
+import Util
 import qualified Tactics.RandomWalk as RandomWalk
 import qualified Tactics.RandomWalk2 as RandomWalk2
 import qualified Tactics.RandomZigZag as RandomZigZag
@@ -72,3 +75,12 @@ main = do
     _ -> help
 
 help = putStrLn $ usageInfo "USAGE: burst [OPTIONS] problemId1 problemId2" options
+
+burst :: ProblemId -> Int -> DisplayMode -> Double -> IO Player -> IO ()
+burst pid cyc displayMode wait_s newPlayer = do
+  Just inp <- readProblem ("problems/problem_"++show pid++".json")
+  let sdN = length $ sourceSeeds inp
+  forM_ [1..cyc] $ \n -> do
+    forM_ [0..sdN-1] $ \sd -> do
+      player <- newPlayer
+      autoPlay pid sd displayMode wait_s player
