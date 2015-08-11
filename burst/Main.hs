@@ -74,7 +74,8 @@ main = do
 
     _ -> help
 
-help = putStrLn $ usageInfo "USAGE: burst [OPTIONS] problemId1 problemId2" options
+help :: IO ()
+help = putStrLn $ usageInfo "USAGE: burst [OPTIONS] problemId1 problemId2 .." options
 
 burst :: ProblemId -> Int -> DisplayMode -> Double -> IO Player -> IO ()
 burst pid cyc displayMode wait_s newPlayer = do
