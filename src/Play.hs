@@ -56,12 +56,13 @@ data DisplayMode
   deriving (Show, Eq, Ord, Enum, Bounded)
 
 autoPlay :: ProblemId -> SeedNo -> DisplayMode -> Double -> Player -> IO ()
-autoPlay n sd displayMode wait_s player = testPlay n sd $ loop True player
+autoPlay n sd displayMode wait_s player = runGame n sd $ loop True player
   where
     wait = do
       when (wait_s > 0) $ liftIO $ do
         let us = ceiling (wait_s  * 10^(6::Int))
         delay us
+
     loop first player = do
       gm <- get
       case displayMode of
@@ -87,9 +88,8 @@ autoPlay n sd displayMode wait_s player = testPlay n sd $ loop True player
           liftIO $ print $ cmds
           liftIO $ print $ head $ commandsToString cmds
 
--- runGameとかにリネームしたい
-testPlay :: ProblemId -> SeedNo -> Game () -> IO ()
-testPlay n sd player = do
+runGame :: ProblemId -> SeedNo -> Game () -> IO ()
+runGame n sd player = do
   tag <- liftIO (genTag n sd)
   gms <- initGameIO n tag sd
   gms' <- execStateT player gms
