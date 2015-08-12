@@ -174,7 +174,7 @@ gameStep cmd old = old { gsBoard     = newboard
     newscore  = case newstatus of
       Game.Error -> 0
       _ | lockedp -> oldscore + move_score (size oldcur) ls old_ls + pwrscr
-        | otherwise -> oldscore
+        | otherwise -> oldscore + pwrscr
     newstatus = if Set.member newcur oldtrace then Game.Error
                 else if lockedp && (fini || nospace) then Game.Finished
                      else Game.Running
