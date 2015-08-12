@@ -61,6 +61,8 @@ test-suite test
                 , HUnit
                 , QuickCheck >=2.5 && <3
                 , containers
+                , split
+                , Glob
                 , icfpc2015
                 , tasty >=0.10.1
                 , tasty-hunit ==0.9.*

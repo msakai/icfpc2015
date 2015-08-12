@@ -1,5 +1,6 @@
 module Util
        ( readProblem
+       , readOutput
        ) where
 
 import Control.Monad (forM_, liftM)
@@ -24,3 +25,7 @@ convert ns = forM_ ns $ \n -> do
 
 readProblem :: FilePath -> IO (Maybe Input)
 readProblem fs = liftM decode $ LBS.readFile fs
+
+readOutput :: FilePath -> IO (Maybe Output)
+readOutput = liftM decode . LBS.readFile
+
