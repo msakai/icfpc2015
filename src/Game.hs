@@ -164,15 +164,17 @@ gameStep cmd old = old { gsBoard     = newboard
     oldcur    = gsCurUnit old
     newcur    = issue cmd oldcur
     oldboard  = gsBoard old
-    newboard  = if not lockedp then oldboard else newb
-    (ls,newb) = clearFullRows (lockUnit oldboard oldcur)
+    (ls,newboard) =
+      if lockedp
+      then clearFullRows (lockUnit oldboard oldcur)
+      else (old_ls, oldboard)
     lockedp   = not (isValidUnit oldboard newcur)
     oldscore  = gsScore old
     old_ls    = gsLs old
-    unitsize  = if lockedp then size oldcur else 0
     newscore  = case newstatus of
       Game.Error -> 0
-      _          -> oldscore + move_score unitsize ls old_ls + pwrscr
+      _ | lockedp -> oldscore + move_score (size oldcur) ls old_ls + pwrscr
+        | otherwise -> oldscore
     newstatus = if Set.member newcur oldtrace then Game.Error
                 else if lockedp && (fini || nospace) then Game.Finished
                      else Game.Running
