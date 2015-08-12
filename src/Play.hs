@@ -85,7 +85,7 @@ runGame n sd player = do
   gms <- initGameIO n sd
   gms' <- execStateT player gms
   let filename = "outputs/"++show (gsScore gms')++"pt-"++tag++".json"
-  LBS.writeFile filename $ encode [ toJSON (dumpOutputItem gms' tag) ]
+  LBS.writeFile filename $ encode [ dumpOutputItem gms' tag ]
   return ()
 
 play :: Game ()

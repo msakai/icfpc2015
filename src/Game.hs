@@ -65,8 +65,6 @@ type Output = [OutputItem]
 
 instance FromJSON OutputItem
 instance ToJSON OutputItem
-instance FromJSON Output
-instance ToJSON Output
 
 initSources :: Input -> [(Number,[Unit])]
 initSources input = zip seeds 
