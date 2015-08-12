@@ -86,7 +86,7 @@ applyCommand (Turn dir) = Unit.turn dir
 
 test_allLockablePlaces = do
   Just input <- readProblem "problems/problem_1.json"
-  let gs0 = head $ Game.initGameStates "" input
+  let gs0 = head $ Game.initGameStates input
       m = allLockablePlaces gs0
   Game.gameDisplay gs0
   forM_ (Map.toList m) $ \(u, (cmds, g)) -> do
@@ -95,7 +95,7 @@ test_allLockablePlaces = do
 
 test_randomWalkTillLocked = do
   Just input <- readProblem "problems/problem_1.json"
-  let gs0 = head $ Game.initGameStates "" input
+  let gs0 = head $ Game.initGameStates input
   Game.gameDisplay gs0
   g <- Rand.newStdGen
   putStrLn "----"

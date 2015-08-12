@@ -88,7 +88,6 @@ data GameStatus = Running | Finished | Error deriving (Show, Eq)
 data GameState = GameState 
   { gsProblemId :: Number
   , gsSeed      :: Number
-  , gsTag       :: String
   , gsUnits     :: [Unit]
   --
   , gsBoard     :: Board
@@ -106,14 +105,13 @@ data GameState = GameState
   }
   deriving (Show)
 
-initGameStates :: String -> Input -> [GameState]
-initGameStates tg input = map (initGameState (defaultGameState tg input)) (initSources input)
+initGameStates :: Input -> [GameState]
+initGameStates input = map (initGameState (defaultGameState input)) (initSources input)
   where
-    defaultGameState :: String -> Input -> GameState
-    defaultGameState tg input = GameState
+    defaultGameState :: Input -> GameState
+    defaultGameState input = GameState
       { gsProblemId = id input
       , gsSeed      = undefined
-      , gsTag       = tg
       , gsUnits     = units input
       -- 
       , gsBoard     = mkBoard (width input) (height input) (filled input)
@@ -196,11 +194,10 @@ gameDisplay gm = PPr.printBox $ dispBoard (gsBoard gm) [gsCurUnit gm]
 gameDisplay' :: GameState -> IO ()
 gameDisplay' gm = gameDisplay gm >> putStrLn ("Score : " ++ show (gsScore gm))
 
-dumpOutputItem :: GameState -> OutputItem
-dumpOutputItem gm = OutputItem
+dumpOutputItem :: GameState -> String -> OutputItem
+dumpOutputItem gm tag = OutputItem
   { problemId = gsProblemId gm
   , seed      = gsSeed gm
-  , tag       = gsTag gm
+  , tag       = tag
   , solution  = head $ commandsToString $ reverse (gsCommands gm)
   }
-

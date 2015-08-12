@@ -114,7 +114,6 @@ exampleGameState
   = Game.GameState
   { Game.gsProblemId = 0
   , Game.gsSeed      = 0
-  , Game.gsTag       = ""
   , Game.gsUnits     = []
   , Game.gsBoard     = Board.Board{ Board.cols = 2, Board.rows = 2, Board.fulls = Set.fromList [Cell.Cell 1 0, Cell.Cell 0 1, Cell.Cell 1 1] }
   , Game.gsCurUnit   = u

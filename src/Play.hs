@@ -27,10 +27,10 @@ import Types
 
 data Meta = Nop | Dump | Quit | BatchH | BatchS deriving (Show, Eq)
 
-initGameIO :: ProblemId -> Tag -> SeedNo -> IO GameState
-initGameIO n tg sd = do
+initGameIO :: ProblemId -> SeedNo -> IO GameState
+initGameIO n sd = do
   { input <- readProblem ("problems/problem_"++show n++".json")
-  ; case input of { Nothing -> error "not found the seed"; Just inp -> return (initGameStates tg inp !! sd) }
+  ; case input of { Nothing -> error "not found the seed"; Just inp -> return (initGameStates inp !! sd) }
   }
 
 genTag :: ProblemId -> SeedNo -> IO Tag
@@ -82,10 +82,10 @@ autoPlay n sd displayMode wait_s player = runGame n sd $ loop True player
 runGame :: ProblemId -> SeedNo -> Game () -> IO ()
 runGame n sd player = do
   tag <- liftIO (genTag n sd)
-  gms <- initGameIO n tag sd
+  gms <- initGameIO n sd
   gms' <- execStateT player gms
   let filename = "outputs/"++show (gsScore gms')++"pt-"++tag++".json"
-  LBS.writeFile filename $ encode [ toJSON (dumpOutputItem gms') ]
+  LBS.writeFile filename $ encode [ toJSON (dumpOutputItem gms' tag) ]
   return ()
 
 play :: Game ()
