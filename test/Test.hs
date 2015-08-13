@@ -128,7 +128,7 @@ exampleGameState
   , Game.gsCommands  = []
   , Game.gsTrace     = Set.singleton u
   , Game.gsLs        = 0
-  , Game.gsScore     = 0
+  , Game.gsMScore    = 0
   , Game.gsPScore    = 0
   }
   where

@@ -11,6 +11,7 @@ module Game
 
   , GameStatus (..)
   , GameState (..)
+  , gsScore
   , initGameStates
   , gameStep
   , gameStepN
@@ -99,7 +100,7 @@ data GameState = GameState
   , gsTrace     :: Set.Set Unit
   --
   , gsLs        :: Pt
-  , gsScore     :: Pt
+  , gsMScore    :: Pt
   , gsPScore    :: Pt
   }
   deriving (Show)
@@ -124,7 +125,7 @@ initGameStates input phrases = map (initGameState (defaultGameState input)) (ini
       , gsTrace     = Set.empty
       --
       , gsLs        = 0
-      , gsScore     = 0
+      , gsMScore    = 0
       , gsPScore    = 0
       }
 
@@ -154,7 +155,7 @@ gameStep cmd old = old { gsBoard     = newboard
                        , gsTrace     = if lockedp then Set.singleton freshcur
                                        else Set.insert newcur oldtrace
                        , gsLs        = ls
-                       , gsScore     = newscore
+                       , gsMScore    = newmscore
                        , gsPScore    = newpscore
                        }
   where
@@ -171,18 +172,21 @@ gameStep cmd old = old { gsBoard     = newboard
       then clearFullRows (lockUnit oldboard oldcur)
       else (old_ls, oldboard)
     lockedp   = not (isValidUnit oldboard newcur)
-    oldscore  = gsScore old
+    oldmscore = gsMScore old
     old_ls    = gsLs old
-    newscore  = case newstatus of
+    newmscore  = case newstatus of
       Game.Error -> 0
-      _ | lockedp -> oldscore + move_score (size oldcur) ls old_ls + newpscore - oldpscore
-        | otherwise -> oldscore + newpscore - oldpscore
+      _ | lockedp -> oldmscore + move_score (size oldcur) ls old_ls
+        | otherwise -> oldmscore
     newstatus = if Set.member newcur oldtrace then Game.Error
                 else if lockedp && (fini || nospace) then Game.Finished
                      else Game.Running
     newcmds   = cmd : gsCommands old
     oldpscore = gsPScore old
     newpscore = power_score (gsPhrases old) newcmds
+
+gsScore :: GameState -> Pt
+gsScore g = gsMScore g + gsPScore g
 
 issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir
