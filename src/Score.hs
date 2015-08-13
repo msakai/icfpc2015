@@ -1,7 +1,8 @@
 module Score where
 
 import Control.Applicative ((<*>))
-import Data.List (group,sort,unfoldr,isPrefixOf)
+import Data.List (group,sort,sortBy,unfoldr,isPrefixOf)
+import Data.Ord (comparing)
 import qualified Data.Set as Set
 
 import Types
@@ -15,18 +16,19 @@ move_score size ls ls_old = points + line_bonus
                    then ((ls_old - 1) * points `div` 10)
                    else 0
 
-power_score :: Commands -> Pt
-power_score cmds = case countPhrases (head $ commandsToString $ reverse cmds) of
+power_score :: [String] -> Commands -> Pt
+power_score phs cmds = case countPhrases phs (head $ commandsToString $ reverse cmds) of
   [] -> 0
   xs -> ((+) . sum . map snd <*> (300 *) . length . group . sort) xs
 
-countPhrases :: String -> [(String,Int)]
-countPhrases = unfoldr phi
+countPhrases :: [String] -> String -> [(String,Int)]
+countPhrases phs = unfoldr phi
   where
     phi [] = Nothing
-    phi xs@(_:rs) = case checkPrefixString phraseOfPowers xs of
+    phi xs@(_:rs) = case checkPrefixString phs' xs of
       []        -> phi rs
       (p,len):_ -> Just ((p,len*2),drop len xs)
+    phs' = sortBy (flip (comparing snd)) $ map ((,) <*> length) $ phs
 
 checkPrefixString :: [(String,Int)] -> String -> [(String,Int)]
 checkPrefixString pps cmdstr

@@ -88,8 +88,8 @@ cp (xs:xss) = [x:ys | x <- xs, ys <- yss]
               where
                 yss = cp xss
 
-powerPhrases :: [String]
-powerPhrases = map fst phraseOfPowers
+phrases :: [String]
+phrases = map fst phraseOfPowers
 
 phraseOfPowers :: [(String,Int)]
 phraseOfPowers = sortBy (flip (comparing snd)) $ map ((,) <*> length) $
