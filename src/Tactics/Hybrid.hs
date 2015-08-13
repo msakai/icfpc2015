@@ -22,7 +22,7 @@ import Tactics.Reynolds (evalGS)
 newPlayer :: Int -> IO Player
 newPlayer n = do
   rs <- sequence $ take n $ repeat Rand.newStdGen
-  return $ player [cmds | pp <- powerPhrases, let cmds = stringToCommands pp] rs
+  return $ player [cmds | pp <- phrases, let cmds = stringToCommands pp] rs
 
 player :: Rand.RandomGen r => [Commands] -> [r] -> Player
 player pps rs = do
