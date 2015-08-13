@@ -12,7 +12,7 @@ import Data.Char (toLower, toUpper)
 import qualified Data.Map as M hiding (map)
 import Data.Maybe (isJust, catMaybes)
 import Data.Tuple (swap)
-import Data.List (sortBy,group,(\\))
+import Data.List (sort,sortBy,group,(\\))
 import Data.Ord (comparing)
 import GHC.Generics
 
@@ -59,33 +59,10 @@ commandToChar :: Command -> [Char]
 commandToChar cmd = maybe [] id $ M.lookup cmd mapCommandToChars
 
 commandsToString :: Commands -> [String]
-commandsToString = commandsToString'
-
--- commandsToString = combi . map commandToChar
---     where
---       combi :: [String] -> [String]
---       combi [] = [[]]
---       combi (x:xs) = [ c:s | c <- x, s <- combi xs ]
-
-commandsToString' :: Commands -> [String]
-commandsToString' = map concat . cp . cmdsToStrings
-
-phrases :: [String]
-phrases =  sortBy (flip (comparing length)) 
-           ["Ei!"
-           ,"Ia! Ia!"
-           ,"R'lyeh"
-           ,"Yuggoth"
-           ,"Cthulhu fhtagn!"
-           ,"Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn" -- not verified but we believe
-           ]
-
-extra51 :: String
-extra51 = "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
+commandsToString = map concat . cp . cmdsToStrings
 
 phraseDict :: [(Commands,String)]
-phraseDict = map (stringToCommands &&& Prelude.id) phrases
-
+phraseDict = map ((stringToCommands &&& Prelude.id) . fst) phraseOfPowers
 
 cmdsToStrings :: Commands -> [[String]]
 cmdsToStrings [] = []
@@ -112,11 +89,26 @@ cp (xs:xss) = [x:ys | x <- xs, ys <- yss]
                 yss = cp xss
 
 powerPhrases :: [String]
-powerPhrases =
-  [ "Ei!"
-  , "Ia! Ia!"
-  , "R'lyeh"
-  , "Yuggoth"
-  , "Cthulhu fhtagn!"
-  , "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn" -- 確定はしていない
-  ]
+powerPhrases = map fst phraseOfPowers
+
+phraseOfPowers :: [(String,Int)]
+phraseOfPowers = sortBy (flip (comparing snd)) $ map ((,) <*> length) $
+    ["Ei!"
+    ,"Ia! Ia!"
+    ,"R'lyeh"
+    ,"Yuggoth"
+    ,"Tsathogua"
+    ,"YogSothoth"
+    ,"Necronomicon"
+    ,"Vigintillion"
+    ,"Cthulhu fhtagn!"
+    ,"The Laundry"
+    ,"Planet 10"
+    ,"Yoyodyne"
+    ,"Monkeyboy"
+    ,"John Bigboote"
+    ,"Blue Hades"
+    ,"Case Nightmare Green"
+    ,"In his house at R'lyeh dead Cthulhu waits dreaming."
+    ,"Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."
+    ]

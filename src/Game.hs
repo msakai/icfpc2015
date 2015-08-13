@@ -99,7 +99,7 @@ data GameState = GameState
   --
   , gsLs        :: Pt
   , gsScore     :: Pt
-  , gsPOccur    :: Set.Set Commands
+  , gsPScore    :: Pt
   }
   deriving (Show)
 
@@ -123,7 +123,7 @@ initGameStates input = map (initGameState (defaultGameState input)) (initSources
       --
       , gsLs        = 0
       , gsScore     = 0
-      , gsPOccur    = Set.empty
+      , gsPScore    = 0
       }
 
     initGameState :: GameState -> (Number,[Unit]) -> GameState
@@ -153,7 +153,7 @@ gameStep cmd old = old { gsBoard     = newboard
                                        else Set.insert newcur oldtrace
                        , gsLs        = ls
                        , gsScore     = newscore
-                       , gsPOccur    = newpoccur
+                       , gsPScore    = newpscore
                        }
   where
     nospace   = not (isValidUnit newboard freshcur)
@@ -173,14 +173,14 @@ gameStep cmd old = old { gsBoard     = newboard
     old_ls    = gsLs old
     newscore  = case newstatus of
       Game.Error -> 0
-      _ | lockedp -> oldscore + move_score (size oldcur) ls old_ls + pwrscr
-        | otherwise -> oldscore + pwrscr
+      _ | lockedp -> oldscore + move_score (size oldcur) ls old_ls + newpscore - oldpscore
+        | otherwise -> oldscore + newpscore - oldpscore
     newstatus = if Set.member newcur oldtrace then Game.Error
                 else if lockedp && (fini || nospace) then Game.Finished
                      else Game.Running
     newcmds   = cmd : gsCommands old
-    oldpoccur = gsPOccur old
-    (pwrscr,newpoccur) = power_score newcmds oldpoccur
+    oldpscore = gsPScore old
+    newpscore = power_score newcmds
 
 issue :: Command -> Unit -> Unit
 issue (Move dir) = move dir

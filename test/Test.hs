@@ -128,7 +128,7 @@ exampleGameState
   , Game.gsTrace     = Set.singleton u
   , Game.gsLs        = 0
   , Game.gsScore     = 0
-  , Game.gsPOccur    = Set.empty
+  , Game.gsPScore    = 0
   }
   where
     u = Unit.Unit{ Unit.members = Set.singleton (Cell.Cell 0 0), Unit.pivot = Cell.Cell 0 0 }
