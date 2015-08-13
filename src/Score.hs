@@ -1,6 +1,8 @@
 module Score where
 
 import Control.Applicative ((<*>))
+import Control.Monad
+import qualified Data.ByteString.Char8 as BS
 import Data.List (group,sort,sortBy,unfoldr,isPrefixOf)
 import Data.Ord (comparing)
 import qualified Data.Set as Set
@@ -48,3 +50,13 @@ checkRevCmdPrefix ts
                        , let clen = length cs
                        , clen == plen
                        ]
+
+computePowerScoreFromString :: [String] -> String -> Pt
+computePowerScoreFromString ps s = sum $ do
+  p <- ps
+  let p' = BS.pack p
+      resp = length $ BS.findSubstrings p' s'
+  guard $ resp > 0
+  return $ 2 * BS.length p' * resp + 300
+  where
+    s' = BS.pack s
