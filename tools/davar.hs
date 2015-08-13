@@ -20,30 +20,33 @@ import qualified Tactics.SearchAllLocking as SearchAllLocking
 
 data Options
   = Options
-  { optInput :: Maybe FilePath
+  { optInputs :: [FilePath]
   , optTimeLimit :: Maybe Int
   , optMemoryLimit :: Maybe Int
   , optNCores :: Maybe Int
   , optPhrases :: [String]
+  , optHelp :: Bool
   }
 
 defaultOptions :: Options
 defaultOptions
   = Options
-  { optInput = Nothing
+  { optInputs = []
   , optTimeLimit = Nothing
   , optMemoryLimit = Nothing
   , optNCores = Nothing
   , optPhrases = []
+  , optHelp = False
   }
 
 options :: [OptDescr (Options -> Options)]
 options =
-  [ Option "f" [] (ReqArg (\val opt -> opt{ optInput = Just val }) "FILENAME") "File containing JSON encoded input"
+  [ Option "f" [] (ReqArg (\val opt -> opt{ optInputs = val : optInputs opt }) "FILENAME") "File containing JSON encoded input"
   , Option "t" [] (ReqArg (\val opt -> opt{ optTimeLimit = Just (read val) }) "NUMBER") "Time limit, in seconds, to produce output"
   , Option "m" [] (ReqArg (\val opt -> opt{ optMemoryLimit = Just (read val) }) "NUMBER") "Memory limit, in megabytes, to produce output"
   , Option "c" [] (ReqArg (\val opt -> opt{ optNCores = Just (read val) }) "NUMBER") "Number of processor cores available"
   , Option "p" [] (ReqArg (\val opt -> opt{ optPhrases = val : optPhrases opt }) "STRING") "Phrase of power"
+  , Option "h" ["help"] (NoArg (\opt -> opt{ optHelp = True }) ) "Print help message"
   ]
 
 main :: IO ()
@@ -56,19 +59,19 @@ main = do
 
     (o,args2,[]) -> do
       let opt = foldl (flip id) defaultOptions o
-      player <- Hybrid.newPlayer 300
-
-      case optInput opt of
-        Nothing -> error "input file is not given"
-        Just fname -> do
-          Just input <- readProblem $ fromJust $ optInput opt
-          os <- forM (zip (initGameStates input (optPhrases opt)) [0..]) $ \(gm, sd) -> do
+      if optHelp opt then do
+        help
+      else do
+        player <- Hybrid.newPlayer 300
+        os <- liftM concat $ forM (optInputs opt) $ \fname -> do
+          Just input <- readProblem fname
+          forM (zip (initGameStates input (optPhrases opt)) [0..]) $ \(gm, sd) -> do
             let gm2 = autoPlay2 player gm
             tag <- genTag (Game.id input) sd
             return $ dumpOutputItem gm2 tag
-          LBS.putStrLn $ encode os
+        LBS.putStrLn $ encode os
 
     _ -> help
 
 help :: IO ()
-help = putStrLn $ usageInfo "USAGE: davar [OPTIONS] -f FILENAME -p STRING -p STRING .." options
+help = putStrLn $ usageInfo "USAGE: davar [OPTIONS] -p STRING -p STRING .. -f FILENAME -f FILENAME .." options
