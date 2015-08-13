@@ -79,6 +79,14 @@ autoPlay n sd displayMode wait_s player = runGame n sd $ loop True player
           liftIO $ print $ cmds
           liftIO $ print $ head $ commandsToString cmds
 
+autoPlay2 :: Player -> GameState -> GameState
+autoPlay2 !player !gm
+  | gsStatus gm /= Running = gm
+  | otherwise =
+      case queryPlayer gm player of
+        (!c, player') -> do
+          autoPlay2 player' (gameStep c gm)
+                 
 runGame :: ProblemId -> SeedNo -> Game () -> IO ()
 runGame n sd player = do
   tag <- liftIO (genTag n sd)

@@ -84,6 +84,16 @@ executable submit
     , icfpc2015
   Default-Language: Haskell2010
 
+executable davar
+  HS-Source-Dirs: tools
+  Main-is: davar.hs
+  Build-Depends:
+      base
+    , bytestring
+    , aeson
+    , icfpc2015
+  Default-Language: Haskell2010
+
 executable play_cui
   HS-Source-Dirs: tools
   Main-is: play_cui.hs
