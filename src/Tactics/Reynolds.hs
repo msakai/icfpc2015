@@ -21,15 +21,19 @@ import Tactics.Util (randomWalkTillLockedWithPPs)
 newPlayer :: Int -> IO Player
 newPlayer n = do
   rs <- sequence $ take n $ repeat Rand.newStdGen
-  return $ player [cmds | pp <- phrases, let cmds = stringToCommands pp] rs
+  return $ player rs
 
-player :: Rand.RandomGen r => [Commands] -> [r] -> Player
-player pps rs = do
-  gs <- getGameState
-  let futures = [randomWalkTillLockedWithPPs pps r gs | r <- rs]
-      (cmds,gs',r') = maximumBy (comparing (\(cmds,gs',r') -> evalGS gs')) futures
-  mapM_ command cmds
-  player pps [r' | (cmds,gs',r') <- futures]
+player :: Rand.RandomGen r => [r] -> Player
+player rs = do
+  gs0 <- getGameState
+  let pps = [cmds | pp <- Game.gsPhrases gs0, let cmds = stringToCommands pp]
+  let loop rs = do
+        gs <- getGameState
+        let futures = [randomWalkTillLockedWithPPs pps r gs | r <- rs]
+            (cmds,gs',r') = maximumBy (comparing (\(cmds,gs',r') -> evalGS gs')) futures
+        mapM_ command cmds
+        loop [r' | (cmds,gs',r') <- futures]
+  loop rs
 
 evalGS :: Game.GameState -> Float
 evalGS gs = (reynolds * position * sitdown * score) ^(1 + Game.gsLs gs)

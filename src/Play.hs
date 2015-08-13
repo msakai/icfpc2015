@@ -30,7 +30,7 @@ data Meta = Nop | Dump | Quit | BatchH | BatchS deriving (Show, Eq)
 initGameIO :: ProblemId -> SeedNo -> IO GameState
 initGameIO n sd = do
   { input <- readProblem ("problems/problem_"++show n++".json")
-  ; case input of { Nothing -> error "not found the seed"; Just inp -> return (initGameStates inp !! sd) }
+  ; case input of { Nothing -> error "not found the seed"; Just inp -> return (initGameStates inp phrases !! sd) }
   }
 
 genTag :: ProblemId -> SeedNo -> IO Tag

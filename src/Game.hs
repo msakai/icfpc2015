@@ -86,6 +86,7 @@ data GameStatus = Running | Finished | Error deriving (Show, Eq)
 data GameState = GameState 
   { gsProblemId :: Number
   , gsSeed      :: Number
+  , gsPhrases   :: [String]
   , gsUnits     :: [Unit]
   --
   , gsBoard     :: Board
@@ -103,13 +104,14 @@ data GameState = GameState
   }
   deriving (Show)
 
-initGameStates :: Input -> [GameState]
-initGameStates input = map (initGameState (defaultGameState input)) (initSources input)
+initGameStates :: Input -> [String] -> [GameState]
+initGameStates input phrases = map (initGameState (defaultGameState input)) (initSources input)
   where
     defaultGameState :: Input -> GameState
     defaultGameState input = GameState
       { gsProblemId = id input
       , gsSeed      = undefined
+      , gsPhrases   = phrases
       , gsUnits     = units input
       -- 
       , gsBoard     = mkBoard (width input) (height input) (filled input)

@@ -118,6 +118,7 @@ exampleGameState
   = Game.GameState
   { Game.gsProblemId = 0
   , Game.gsSeed      = 0
+  , Game.gsPhrases   = []
   , Game.gsUnits     = []
   , Game.gsBoard     = Board.Board{ Board.cols = 2, Board.rows = 2, Board.fulls = Set.fromList [Cell.Cell 1 0, Cell.Cell 0 1, Cell.Cell 1 1] }
   , Game.gsCurUnit   = u
@@ -136,7 +137,7 @@ exampleGameState
 computeScore :: Game.Input -> Int -> String -> Int
 computeScore input seedNo solution = Game.gsScore $ Game.gameStepN cmds gs0
   where
-    gs0 = Game.initGameStates input !! seedNo
+    gs0 = Game.initGameStates input phrases !! seedNo
     cmds = stringToCommands solution
 
 checkScore :: FilePath -> Int -> [String] -> IO ()
