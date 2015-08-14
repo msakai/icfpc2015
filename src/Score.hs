@@ -1,6 +1,6 @@
 module Score where
 
-import Control.Applicative ((<*>))
+import Control.Arrow ((&&&))
 import Control.Monad
 import qualified Data.ByteString.Char8 as BS
 import Data.List (group,sort,sortBy,unfoldr,isPrefixOf)
@@ -24,7 +24,7 @@ power_score phs cmds = fst $ power_score' phs cmds
 power_score' :: [String] -> Commands -> (Pt, String)
 power_score' phs cmds = case countPhrases phs s of
   [] -> (0, s)
-  xs -> (((+) . sum . map snd <*> (300 *) . length . group . sort) xs, s)
+  xs -> ((uncurry (+) . (sum . map snd &&& (300 *) . length . group . sort)) xs, s)
   where
     s = head $ commandsToString $ reverse cmds
         
@@ -35,7 +35,7 @@ countPhrases phs = unfoldr phi
     phi xs@(_:rs) = case checkPrefixString phs' xs of
       []        -> phi rs
       (p,len):_ -> Just ((p,len*2),drop len xs)
-    phs' = sortBy (flip (comparing snd)) $ map ((,) <*> length) $ phs
+    phs' = sortBy (flip (comparing snd)) $ map (id &&& length) $ phs
 
 checkPrefixString :: [(String,Int)] -> String -> [(String,Int)]
 checkPrefixString pps cmdstr
@@ -44,7 +44,7 @@ checkPrefixString pps cmdstr
 revcmds :: [(Commands,Pt)]
 revcmds = map (f . reverse) $ fst $ unzip phraseDict
   where
-    f = (,) <*> ((2*) . length)
+    f = id &&& (2*) . length
 
 checkRevCmdPrefix :: Commands -> [(Pt,Commands)]
 checkRevCmdPrefix ts
