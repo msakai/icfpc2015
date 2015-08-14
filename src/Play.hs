@@ -4,8 +4,9 @@
 module Play where
 
 import Control.Applicative
-import Control.Arrow ((&&&))
+import Control.Arrow ((&&&))    
 import Control.Concurrent.Thread.Delay (delay)
+import Control.Exception
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.State
@@ -102,7 +103,6 @@ play = playStartWith []
 playStartWith :: [Command] -> Game ()
 playStartWith cmds = do
   { liftIO (hSetBuffering stdin NoBuffering)
-  ; liftIO (hSetBuffering stdout NoBuffering)
   ; liftIO (hSetEcho stdin False)
   ; modify (gameStepN cmds)
   ; loop
@@ -149,19 +149,16 @@ playStartWith cmds = do
       }
 
     getLineWithPrompt prompt = liftIO $ do
-      hSetBuffering stdin LineBuffering
-      hSetBuffering stdout LineBuffering                      
-      hSetEcho stdin True
       putStr prompt
       hFlush stdout
-      s <- getLine
-      hSetBuffering stdin NoBuffering
-      hSetBuffering stdout NoBuffering
-      hSetEcho stdin False
-      return s
+      bracket (hGetBuffering stdin) (hSetBuffering stdin) $ \_ -> do
+        bracket (hGetEcho stdin) (hSetEcho stdin) $ \_ -> do
+          hSetBuffering stdin LineBuffering
+          hSetEcho stdin True
+          getLine
 
 hGetCommand :: Handle -> IO (Either Meta Command)
-hGetCommand h =  return . keyToCommand =<< hGetChar h
+hGetCommand h =  liftM keyToCommand $ hGetChar h
 
 keyToCommand :: Char -> Either Meta Command
 keyToCommand 'h' = Right (Move W)
