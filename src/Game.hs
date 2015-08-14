@@ -198,7 +198,9 @@ gameDisplay :: GameState -> IO ()
 gameDisplay gm = PPr.printBox $ dispBoard (gsBoard gm) [gsCurUnit gm]
 
 gameDisplay' :: GameState -> IO ()
-gameDisplay' gm = gameDisplay gm >> putStrLn ("Score : " ++ show (gsScore gm))
+gameDisplay' gm = do
+  gameDisplay gm
+  putStrLn $ "Score : " ++ show (gsScore gm) ++ " (Move Score: " ++ show (gsMScore gm) ++ ", Power Score: " ++ show (gsPScore gm) ++ ")"
 
 dumpOutputItem :: GameState -> String -> OutputItem
 dumpOutputItem gm tag = OutputItem
