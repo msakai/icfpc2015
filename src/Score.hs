@@ -22,11 +22,17 @@ power_score :: [String] -> Commands -> Pt
 power_score phs cmds = fst $ power_score' phs cmds
 
 power_score' :: [String] -> Commands -> (Pt, String)
+power_score' phs cmds = (computePowerScoreFromString phs s, s)
+  where
+    s = head $ commandsToString $ reverse cmds
+{-
+power_score' :: [String] -> Commands -> (Pt, String)
 power_score' phs cmds = case countPhrases phs s of
   [] -> (0, s)
   xs -> ((uncurry (+) . (sum . map snd &&& (300 *) . length . group . sort)) xs, s)
   where
     s = head $ commandsToString $ reverse cmds
+-}
         
 countPhrases :: [String] -> String -> [(String,Int)]
 countPhrases phs = unfoldr phi
