@@ -19,10 +19,15 @@ move_score size ls ls_old = points + line_bonus
                    else 0
 
 power_score :: [String] -> Commands -> Pt
-power_score phs cmds = case countPhrases phs (head $ commandsToString $ reverse cmds) of
-  [] -> 0
-  xs -> ((+) . sum . map snd <*> (300 *) . length . group . sort) xs
+power_score phs cmds = fst $ power_score' phs cmds
 
+power_score' :: [String] -> Commands -> (Pt, String)
+power_score' phs cmds = case countPhrases phs s of
+  [] -> (0, s)
+  xs -> (((+) . sum . map snd <*> (300 *) . length . group . sort) xs, s)
+  where
+    s = head $ commandsToString $ reverse cmds
+        
 countPhrases :: [String] -> String -> [(String,Int)]
 countPhrases phs = unfoldr phi
   where
