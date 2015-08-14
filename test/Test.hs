@@ -134,8 +134,8 @@ exampleGameState
   where
     u = Unit.Unit{ Unit.members = Set.singleton (Cell.Cell 0 0), Unit.pivot = Cell.Cell 0 0 }
 
-computeScore :: Game.Input -> Int -> String -> Int
-computeScore input seedNo solution = Game.gsScore $ Game.gameStepN cmds gs0
+computeScore :: [String] -> Game.Input -> Int -> String -> Int
+computeScore phrases input seedNo solution = Game.gsScore $ Game.gameStepN cmds gs0
   where
     gs0 = Game.initGameStates input phrases !! seedNo
     cmds = stringToCommands solution
@@ -148,7 +148,7 @@ checkScore problem ub tags = do
         idx = read $ drop 4 s
     [fname] <- Glob.glob ("outputs/*pt-" ++ tag ++ ".json")
     Just [o] <- Util.readOutput fname
-    return $ computeScore input idx (Game.solution o)
+    return $ computeScore phrases input idx (Game.solution o)
   assertBool "invalid number of tags" (length ss <= length (Game.sourceSeeds input))
   let s = sum ss `div` length (Game.sourceSeeds input)
   assertBool (printf "average score = %d, but it should be <=%d" s ub) (s <= ub)
