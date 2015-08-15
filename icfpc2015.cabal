@@ -119,3 +119,14 @@ executable highscores
     , directory >=1.2
   Default-Language: Haskell2010
 
+executable correct_output_filename
+  HS-Source-Dirs: tools
+  Main-is: correct_output_filename.hs
+  Build-Depends:
+      base
+    , split
+    , filepath
+    , Glob
+    , process
+    , icfpc2015
+  Default-Language: Haskell2010
