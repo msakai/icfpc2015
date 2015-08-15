@@ -6,6 +6,7 @@
  #-}
 module Command where
 
+import Control.Applicative ((<*>))
 import Control.Arrow ((&&&), (***))
 import Data.Aeson
 import Data.Char (toLower, toUpper)
