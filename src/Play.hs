@@ -48,7 +48,10 @@ data DisplayMode
   deriving (Show, Eq, Ord, Enum, Bounded)
 
 autoPlay :: ProblemId -> SeedNo -> DisplayMode -> Double -> Player -> IO ()
-autoPlay n sd displayMode wait_s player = runGame n sd $ loop True player
+autoPlay n sd displayMode wait_s player = runGame n sd $ autoPlay' displayMode wait_s player
+           
+autoPlay' :: DisplayMode -> Double -> Player -> Game ()
+autoPlay' displayMode wait_s player = loop True player
   where
     wait = do
       when (wait_s > 0) $ liftIO $ do
@@ -87,7 +90,10 @@ autoPlay2 !player !gm
       case queryPlayer gm player of
         (!c, player') -> do
           autoPlay2 player' (gameStep c gm)
-                 
+
+autoPlay3 :: DisplayMode -> Double -> Player -> GameState -> IO GameState
+autoPlay3 displayMode wait_s player gm = execStateT (autoPlay' displayMode wait_s player) gm
+
 runGame :: ProblemId -> SeedNo -> Game () -> IO ()
 runGame n sd player = do
   tag <- liftIO (genTag n sd)

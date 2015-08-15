@@ -102,6 +102,15 @@ executable play_cui
     , icfpc2015
   Default-Language: Haskell2010
 
+executable replay
+  HS-Source-Dirs: tools
+  Main-is: replay.hs
+  Build-Depends:
+      base
+    , containers
+    , icfpc2015
+  Default-Language: Haskell2010
+
 executable burst
   HS-Source-Dirs: tools
   Main-is: burst.hs
