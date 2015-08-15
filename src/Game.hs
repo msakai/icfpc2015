@@ -12,6 +12,7 @@ module Game
   , GameStatus (..)
   , GameState (..)
   , gsScore
+  , initGameState
   , initGameStates
   , gameStep
   , gameStepN
@@ -67,20 +68,11 @@ type Output = [OutputItem]
 instance FromJSON OutputItem
 instance ToJSON OutputItem
 
-initSources :: Input -> [(Number,[Unit])]
-initSources input = zip seeds 
-                  $ map (initSource arr . take (sourceLength input) . generate . fromIntegral) seeds
+initSource :: [Unit] -> Number -> Int -> [Unit]
+initSource units seed n = map (\i -> arr Arr.! (i `mod` len)) $ take n $ generate $ fromIntegral seed
   where
-    seeds = sourceSeeds input
-    us  = units input
-    len = length us
-    arr = Arr.listArray (0,len-1) us
-
-initSource :: Arr.Array Int Unit -> [Int] -> [Unit]
-initSource arr rs = map ((arr Arr.!) . (`mod` m)) rs
-  where
-    m     = h + 1
-    (l,h) = Arr.bounds arr
+    len = length units
+    arr = Arr.listArray (0,len-1) units
 
 data GameStatus = Running | Finished | Error deriving (Show, Eq)
 
@@ -105,11 +97,19 @@ data GameState = GameState
   }
   deriving (Show)
 
-initGameStates :: Input -> [String] -> [GameState]
-initGameStates input phrases = map (initGameState (defaultGameState input)) (initSources input)
+initGameState :: Input -> [String] -> Number -> GameState
+initGameState input phrases seed = defaultGameState
+  { gsSeed    = seed
+  , gsCurUnit = iu
+  , gsSource  = tail src
+  , gsTrace   = Set.singleton iu
+  }
   where
-    defaultGameState :: Input -> GameState
-    defaultGameState input = GameState
+    src = initSource (units input) seed (sourceLength input)
+    iu = spawn (cols (gsBoard defaultGameState), rows (gsBoard defaultGameState)) (head src)
+
+    defaultGameState :: GameState
+    defaultGameState = GameState
       { gsProblemId = id input
       , gsSeed      = undefined
       , gsPhrases   = phrases
@@ -128,15 +128,9 @@ initGameStates input phrases = map (initGameState (defaultGameState input)) (ini
       , gsMScore    = 0
       , gsPScore    = 0
       }
-
-    initGameState :: GameState -> (Number,[Unit]) -> GameState
-    initGameState d (sd,src) = d { gsSeed    = sd
-                                 , gsCurUnit = iu
-                                 , gsSource  = tail src
-                                 , gsTrace   = Set.singleton iu
-                                 }
-      where
-        iu = spawn (cols (gsBoard d), rows (gsBoard d)) (head src)
+                 
+initGameStates :: Input -> [String] -> [GameState]
+initGameStates input phrases = [initGameState input phrases seed | seed <- sourceSeeds input]
 
 gameStepN :: [Command] -> GameState -> GameState
 gameStepN cmds old = foldl' (flip gameStep) old cmds

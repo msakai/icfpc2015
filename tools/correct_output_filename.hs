@@ -29,7 +29,7 @@ main = do
 
     Just [o] <- Util.readOutput (dirname </> fname)
     Just input  <- Util.readProblem $ "problems/problem_" ++ show (Game.problemId o) ++ ".json"
-    let gs0 = Game.initGameStates input phrases !! idx
+    let gs0 = Game.initGameState input phrases (Game.seed o)
         gs  = Game.gameStepN (stringToCommands (Game.solution o)) gs0
         new_score = Game.gsMScore gs + Score.computePowerScoreFromString phrases (Game.solution o)
         fpath2 = dirname </> (show new_score ++ "pt" ++ dropWhile ('-'/=) fname)
