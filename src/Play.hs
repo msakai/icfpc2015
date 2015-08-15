@@ -1,7 +1,25 @@
 {-# LANGUAGE
     BangPatterns
   #-}
-module Play where
+module Play
+  ( genTag
+
+  , DisplayMode (..)
+  , autoPlay
+  , autoPlay2
+  , autoPlay3
+  , runGame
+
+  , play
+  , playStartWith
+
+  , PlayerM (..)
+  , Player
+  , getGameState
+  , command
+  , queryPlayer
+  , replayPlayer
+  ) where
 
 import Control.Applicative
 import Control.Arrow ((&&&))    
