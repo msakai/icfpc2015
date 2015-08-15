@@ -10,7 +10,7 @@ maintainer:          masahiro.sakai@gmail.com
 -- copyright:           
 category:            Language
 build-type:          Simple
-extra-source-files:  README.md
+extra-source-files:  README.md, src/CommandStringOptimization.hs
 cabal-version:       >=1.10
 
 library
@@ -25,6 +25,7 @@ library
                        , Util
                        , Display
                        , Play
+                       --, CommandStringOptimization
                        , Tactics.RandomZigZag
                        , Tactics.RandomWalk
                        , Tactics.RandomWalk2
@@ -49,6 +50,7 @@ library
                      , http-client >= 0.4.18
                      , http-client-tls >= 0.2.2
                      , unbounded-delays >=0.1
+                     -- , toysolver >=0.3.0 && <0.4.0
   hs-source-dirs:      src
   default-language:    Haskell2010
 
