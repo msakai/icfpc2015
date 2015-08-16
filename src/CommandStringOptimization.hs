@@ -19,6 +19,7 @@ optimize :: [String] -> Command.Commands -> IO (String, Int)
 optimize ps cmds = do
   let len = length cmds
   solver <- SAT.newSolver
+  SAT.resizeVarCapacity solver (len * 6 + len * length ps + length ps) -- pre-allocation of internal data in a batch
 
   ms <- forM cmds $ \cmd -> do
      let cs = Command.commandToChar cmd
