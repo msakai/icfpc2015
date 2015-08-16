@@ -32,7 +32,7 @@ optimize ps cmds = do
   forM_ (map (map toLower) ps) $ \p -> do
     let p_len = length p
     unless (p_len > len) $ do
-      ts <- liftM concat $ forM (take (len - p_len + 1) $ map (take p_len) $ tails ms) $ \ms2 -> do
+      ts <- liftM concat $ forM (take (len - p_len + 1) $ tails ms) $ \ms2 -> do
         case sequence (zipWith Map.lookup p ms2) of
           Nothing -> return []
           Just vs -> do
@@ -40,16 +40,22 @@ optimize ps cmds = do
             forM_ vs $ \v2 -> SAT.addClause solver [-v, v2] -- v implies v2
             modifyIORef objRef ((fromIntegral p_len * 2, v) :)
             return [v]
-      p_appeard <- SAT.newVar solver
-      SAT.addClause solver $ (- p_appeard) : ts -- p_appeard implies disjunction of ts
-      modifyIORef objRef ((300, p_appeard) :)
+      unless (null ts) $ do
+        p_appeard <- SAT.newVar solver
+        SAT.addClause solver $ (- p_appeard) : ts -- p_appeard implies disjunction of ts
+        modifyIORef objRef ((300, p_appeard) :)
       return ()
 
   obj' <- readIORef objRef
   let obj = [(-c,v) | (c,v) <- obj'] -- convert maximization to minimization
+  -- print $ length obj
+  -- print =<< SAT.getNVars solver
+  -- print =<< SAT.getNConstraints solver
   opt <- PBO.newOptimizer solver obj
   PBO.setSearchStrategy opt PBO.BCD2
-  PBO.setOnUpdateBestSolution opt $ \_ val -> print val
+  -- SAT.setLogger solver putStrLn
+  -- PBO.setOnUpdateBestSolution opt $ \_ val -> putStrLn $ "new solution: " ++ show (- val)
+  -- PBO.setOnUpdateLowerBound opt $ \val -> putStrLn $ "new upper bound: " ++ show (- val)
   PBO.optimize opt
   Just (model, val) <- PBO.getBestSolution opt
 
